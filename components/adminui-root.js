@@ -141,27 +141,30 @@ export function load() {
           content: 'width=device-width, initial-scale=1, shrink-to-fit=no'
         });
 
-        this.webComponents.loadCSSFile('css/fontawesome-free/all.min.css');
+        let prefix = '';
+        if (this.options.resourcePath) prefix = this.options.resourcePath;
+
+        this.webComponents.loadCSSFile(prefix + 'css/fontawesome-free/all.min.css');
         this.webComponents.loadCSSFile('https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i');
-        this.webComponents.loadCSSFile('css/sb-admin/sb-admin-2.min.css');
-        this.webComponents.loadCSSFile('css/toastr/toastr.min.css');
+        this.webComponents.loadCSSFile(prefix + 'css/sb-admin/sb-admin-2.min.css');
+        this.webComponents.loadCSSFile(prefix + 'css/toastr/toastr.min.css');
         let _this = this;
         let noOfFiles = 4;
         let count = 0;
-        this.webComponents.loadJSFile('js/jquery/jquery.min.js', function() {
-          _this.webComponents.loadJSFile('js/bootstrap/bootstrap.bundle.min.js', function() {
+        this.webComponents.loadJSFile(prefix + 'js/jquery/jquery.min.js', function() {
+          _this.webComponents.loadJSFile(prefix + 'js/bootstrap/bootstrap.bundle.min.js', function() {
             count++;
             if (count === noOfFiles) _this.isReady();
           });
-          _this.webComponents.loadJSFile('js/jquery-easing/jquery.easing.min.js', function() {
+          _this.webComponents.loadJSFile(prefix + 'js/jquery-easing/jquery.easing.min.js', function() {
             count++;
             if (count === noOfFiles) _this.isReady();
           });
-          _this.webComponents.loadJSFile('js/sb-admin/sb-admin-2.min.js', function() {
+          _this.webComponents.loadJSFile(prefix + 'js/sb-admin/sb-admin-2.min.js', function() {
             count++;
             if (count === noOfFiles) _this.isReady();
           });
-          _this.webComponents.loadJSFile('js/toastr/toastr.min.js', function() {
+          _this.webComponents.loadJSFile(prefix + 'js/toastr/toastr.min.js', function() {
             count++;
             if (count === noOfFiles) _this.isReady();
           });
