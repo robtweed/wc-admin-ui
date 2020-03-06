@@ -1,12 +1,5 @@
 // Change the paths below if needed
 
-// Note you need to have installed the new qewd-client module
-//  This will soon be included in the QEWD Docker container
-//  but isn't there just yet
-
-//  You should also copy the adminui components library
-//  into the js directory
-
 import {webComponents} from '../../mg-webComponents.js';
 import {QEWD} from '../../qewd-client.js';
 import {getConfigs} from './page-config.js';
@@ -20,7 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let page_configs = getConfigs(QEWD, webComponents);
 
     let options = {
-      path: './with_qewd/js/',
+      path: './components/adminui/components/',
+      resourcePath: '/components/adminui/',
       hooks: page_configs.hooks,
       readyEvent: new Event('ready')
     };
@@ -60,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   QEWD.start({
-    application: 'dom-editor'
+    application: 'adminui-demo'
   });
 
 });
