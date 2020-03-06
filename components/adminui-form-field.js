@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 02 March 2020
+ 06 March 2020
 
 */
 
@@ -38,6 +38,7 @@ export function load() {
     constructor() {
       super();
 
+      counter++;
       let id = id_prefix + counter;
 
       const html = `
