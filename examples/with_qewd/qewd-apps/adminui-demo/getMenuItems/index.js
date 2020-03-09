@@ -27,13 +27,11 @@ module.exports = function(messageObj, session, send, finished) {
       {
         componentName: 'adminui-topbar-navbar-menu-item',
         state: {
-          title: 'Option 3',
+          title: 'Logout',
           icon: 'sign-out-alt',
-          use_modal: 'modal-login',
-          itemId: 3
-        },
-        //hooks: ['getMenuDetail']
-      },
+          use_modal: 'modal-logout'
+        }
+      }
     ];
 
     finished({

@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 March 2020
+ 9 March 2020
 
  */
 
@@ -98,6 +98,12 @@ export function load() {
           root.switchToPage(state.contentPage);
         };
         this.rootElement.addEventListener('click', this.pageSelect);
+      }
+      if (state.use_modal) {
+        this.rootElement.setAttribute('data-toggle', 'modal');
+        let modalRoot = this.getComponentByName('adminui-modal-root', state.use_modal); 
+        if (modalRoot) this.rootElement.setAttribute('data-target', '#' + modalRoot.rootElement.id);
+        if (this.pageSelect) this.rootElement.removeEventListener('click', this.pageSelect);
       }
     }
 
