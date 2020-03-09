@@ -32,7 +32,8 @@ export function getConfigs(QEWD, webComponents) {
                 state: {
                   label: 'Username:',
                   placeholder: 'Enter username...',
-                  name: 'username'
+                  name: 'username',
+                  focus: true
                 }
               },
               {
@@ -67,6 +68,19 @@ export function getConfigs(QEWD, webComponents) {
 
   hooks['adminui-button'] = {
     login: function() {
+      let modal = this.getParentComponent({match: 'adminui-modal-root'});
+      let _this = this;
+
+      let kpfn =  function(e){
+        if(e.which == 13) {
+          // click the button to submit the form
+          _this.rootElement.focus();
+          _this.rootElement.click();
+        }
+      };
+
+      modal.addHandler(kpfn, 'keypress');
+
       let fn = function() {
         let form = webComponents.getComponentByName('adminui-form', 'loginForm');
         QEWD.send({
@@ -81,9 +95,9 @@ export function getConfigs(QEWD, webComponents) {
             modal.hide();
             modal.remove();
             let root = webComponents.getComponentByName('adminui-root', 'root');
-            webComponents.loadGroup(configs.sidebar, root.sidebarTarget, root.options);
-            webComponents.loadGroup(configs.topbar, root.topbarTarget, root.options);
-            webComponents.loadGroup(configs.contentPages.dashboard, root.contentTarget, root.options);
+            webComponents.loadGroup(configs.sidebar, root.sidebarTarget, root.context);
+            webComponents.loadGroup(configs.topbar, root.topbarTarget, root.context);
+            webComponents.loadGroup(configs.contentPages.dashboard, root.contentTarget, root.context);
           }
         });
       };
@@ -317,7 +331,8 @@ export function getConfigs(QEWD, webComponents) {
       componentName: 'adminui-topbar-search',
       state: {
         placeholder: 'enter search..'
-      }
+      },
+      hooks: ['search']
     },
     {
       componentName: 'adminui-topbar-navbar',
@@ -368,6 +383,21 @@ export function getConfigs(QEWD, webComponents) {
     }
   ];
 
+  hooks['adminui-topbar-search'] = {
+    search: function() {
+      let _this = this;
+      let fn = function() {
+        QEWD.send({
+          type: 'search',
+          value: _this.searchField.value
+        }, function(responseObj) {
+          console.log(responseObj);
+        });
+      };
+      this.addHandler(fn, this.searchBtn);
+    }
+  };
+
   hooks['adminui-topbar-navbar-dropdown'] = {
     getMessages: function() {
       let _this = this;
@@ -414,7 +444,7 @@ export function getConfigs(QEWD, webComponents) {
         }, function(responseObj) {
         });
       };
-      this.addHandler(fn, 'aTag');
+      this.addHandler(fn, this.aTag);
     }
   };
 
@@ -499,27 +529,131 @@ export function getConfigs(QEWD, webComponents) {
     }
   };
 
+
   let charts = {
-    componentName: 'contentPage',
+    componentName: 'adminui-content-page',
     state: {
-      name: 'charts',
-      title: 'Charts',
-      cardTitle: 'Charts Card',
-      cardTitleColour: 'success',
-      cardName: 'charts-card',
-      text: 'This is the Charts Page content....'
-    }
+      name: 'charts'
+    },
+    children: [
+      {
+        componentName: 'adminui-content-page-header',
+        state: {
+          title: 'Charts'
+        }
+      },
+      {
+        componentName: 'adminui-content-card',
+        state: {
+          title: 'Charts Card',
+          title_colour: 'warning',
+          name: 'charts-card'
+        },
+        children: [
+          {
+            componentName: 'adminui-chart',
+            hooks: ['getChartData']
+          }
+        ]
+      }
+    ]
   };
 
+  hooks['adminui-chart'] = {
+    getChartData: function() {
+      let config = {
+        type: 'doughnut',
+        data: {
+          labels: ["Direct", "Referral", "Social"],
+          datasets: [{
+            data: [55, 30, 15],
+            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
+            hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+          }],
+        },
+        options: {
+          maintainAspectRatio: false,
+          tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
+          },
+          legend: {
+            display: false
+          },
+          cutoutPercentage: 80,
+        },
+      };
+
+      this.draw(config);
+    }
+  }
+
+
   let tables = {
-    componentName: 'contentPage',
+    componentName: 'adminui-content-page',
     state: {
-      name: 'tables',
-      title: 'Tables',
-      cardTitle: 'Tables Card',
-      cardTitleColour: 'warning',
-      cardName: 'tables-card',
-      text: 'This is the Tables Page content....'
+      name: 'tables'
+    },
+    children: [
+      {
+        componentName: 'adminui-content-page-header',
+        state: {
+          title: 'Tables'
+        }
+      },
+      {
+        componentName: 'adminui-content-card',
+        state: {
+          title: 'Tables Card',
+          title_colour: 'warning',
+          name: 'tables-card'
+        },
+        children: [
+          {
+            componentName: 'adminui-datatables',
+            hooks: ['getTableData']
+          }
+        ]
+      }
+    ]
+  };
+
+  hooks['adminui-datatables'] = {
+    getTableData: function() {
+      let _this = this;
+      QEWD.send({
+        type: 'getTableData',
+        ref: this.name
+      }, function(responseObj) {
+        let obj = responseObj.message.data;
+        _this.render(obj);
+
+        /*
+        setTimeout(function() {
+          console.log('xxxxx');
+          console.log(_this.datatable);
+          //_this.datatable.clear().draw();
+          //_this.remove();
+        }, 4000);
+        */
+
+        _this.onCellClicked = function(cell) {
+          console.log('clicked cell with value ' + cell.data());
+          console.log(this);
+          console.log(cell);
+          console.log(cell.index());
+          //cell.data('New Value');
+          //cell.draw();
+        };
+
+      });
     }
   };
 

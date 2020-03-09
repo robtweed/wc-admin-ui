@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 5 March 2020
+ 8 March 2020
 
 */
 
@@ -57,6 +57,7 @@ export function load() {
 
     disconnectedCallback() {
       console.log('*** span component was removed!');
+      if (this.onUnload) this.onUnload();
     }
   }
 

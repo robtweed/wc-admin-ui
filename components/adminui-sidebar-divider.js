@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 February 2020
+ 8 March 2020
 
  */
 
@@ -57,7 +57,7 @@ export function load() {
 
     disconnectedCallback() {
       console.log('*** divider was removed!');
-      console.log(element);
+      if (this.onUnload) this.onUnload();
     }
   }
 

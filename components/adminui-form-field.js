@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 06 March 2020
+ 7 March 2020
 
 */
 
@@ -88,6 +88,9 @@ export function load() {
       }
       if (state.label) {
         this.labelTag.textContent = state.label;
+      }
+      if (state.focus) {
+        this.inputTag.focus();
       }
     }
 

@@ -30,40 +30,69 @@
 
 export function load() {
 
-  let componentName = 'adminui-modal-cancel-button';
+  let componentName = 'adminui-datatables';
+  let id_prefix = componentName + '-';
+  let counter = -1;
+  let labelId;
 
-  class adminui_modal_cancel_button extends HTMLElement {
+  class adminui_datatables extends HTMLElement {
     constructor() {
       super();
 
+      counter++;
+      let id = id_prefix + counter;
+
       const html = `
-<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+<div class="table-responsive">
+  <table class="table table-bordered" id="${id}" width="100%" style="width:100%" cellspacing="0">
+  </table>
+</div>
       `;
       this.html = `${html}`;
     }
 
     setState(state) {
-      if (state.text) {
-        this.rootElement.textContent = state.text;
+      if (state.name) {
+        this.name = state.name;
       }
-      if (state.colour) {
-        let oldColour = this.rootElement.classList.item(1);
-        this.rootElement.classList.remove(oldColour);
-        this.rootElement.classList.add('btn-' + state.colour);
+      if (state.cls) {
+        this.table.classList.add(state.cls);
       }
+      if (state.width) {
+        this.table.setAttribute('width', state.width);
+      }
+      if (state.cellspacing) {
+        this.table.setAttribute('cellspacing', state.cellspacing);
+      }
+    }
+
+    onLoaded() {
+    }
+
+    render(data) {
+      let tableObj = $('#' + this.table.id);
+      this.datatable = tableObj.DataTable(data);
+      let _this = this;
+      $('#' + this.table.id + ' tbody').on('click', 'td', function () {
+        if (_this.onCellClicked) _this.onCellClicked.call(_this,  _this.datatable.cell(this));
+      });
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
-      this.rootElement = this.getElementsByTagName('button')[0];
+      this.rootElement = this.getElementsByTagName('div')[0];
+      this.table = this.rootElement.querySelector('table');
+      this.childrenTarget = this.table;
+      this.name = 'undefined-table-' + counter;
     }
 
     disconnectedCallback() {
-      console.log('*** modal cancel button component was removed!');
+      console.log('*** datatables component was removed!');
+      if (this.datatable) this.datatable.destroy();
       if (this.onUnload) this.onUnload();
     }
   }
 
-  customElements.define(componentName, adminui_modal_cancel_button);
+  customElements.define(componentName, adminui_datatables);
 
 }

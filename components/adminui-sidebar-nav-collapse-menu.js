@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 February 2020
+ 8 March 2020
 
  */
 
@@ -101,13 +101,7 @@ export function load() {
     disconnectedCallback() {
       console.log('*** nav-collapse-menu was removed!');
       a.removeEventListener('click', this.toggleActive);
-
-      /*
-      // remove all the menu handlers
-      this.menuEventHandlers.forEach(function(obj) {;
-        obj.element.removeEventListener('click', obj.fn);
-      });
-      */
+      if (this.onUnload) this.onUnload();
     }
 
   }

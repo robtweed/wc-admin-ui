@@ -12,8 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let page_configs = getConfigs(QEWD, webComponents);
 
-    let options = {
-      path: './components/adminui/components/',
+    let context = {
+      paths: {
+        adminui: './components/adminui/components/'
+      },
       resourcePath: '/components/adminui/',
       hooks: page_configs.hooks,
       readyEvent: new Event('ready')
@@ -35,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // to show the modal, since this depends on jQuery being ready
 
     // The ready event is dispatched by the admin-root component
-    //  It is available to the admin-root component via the options object which
+    //  It is available to the admin-root component via the context object which
     //  includes the ready event object
 
     document.addEventListener('ready', function() {
@@ -45,10 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // now load up the initial view
 
-    webComponents.load('adminui-root', body, options, function(root) {
-      webComponents.loadGroup(page_configs.initial_sidebar, root.sidebarTarget, options);
-      webComponents.loadGroup(page_configs.login_modal, body, options);
-      webComponents.loadGroup(page_configs.footer, root.footerTarget, options);
+    webComponents.load('adminui-root', body, context, function(root) {
+      webComponents.loadGroup(page_configs.initial_sidebar, root.sidebarTarget, context);
+      webComponents.loadGroup(page_configs.login_modal, body, context);
+      webComponents.loadGroup(page_configs.footer, root.footerTarget, context);
     });
 
   });

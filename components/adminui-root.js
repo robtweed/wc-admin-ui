@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 6 March 2020
+ 8 March 2020
 
 */
 
@@ -103,7 +103,7 @@ export function load() {
       if (!this.contentPages[pageName]) {
         let config = this.webComponents.getInstanceFromRegistry(pageName);
         if (config) {
-          this.webComponents.loadGroup(config, this.contentTarget, {path: this.path});
+          this.webComponents.loadGroup(config, this.contentTarget, this.context);
           this.contentPages[pageName] = true;
           // setPageActive will get triggered when page config is loaded
         }
@@ -115,7 +115,7 @@ export function load() {
     }
 
     isReady() {
-      document.dispatchEvent(this.options.readyEvent);
+      document.dispatchEvent(this.context.readyEvent);
     }
 
     setState(state) {
@@ -140,16 +140,27 @@ export function load() {
           name: 'viewport',
           content: 'width=device-width, initial-scale=1, shrink-to-fit=no'
         });
+        this.webComponents.addMetaTag({
+          name: 'apple-mobile-web-app-capable',
+          content: 'yes'
+        });
 
         let prefix = '';
-        if (this.options.resourcePath) prefix = this.options.resourcePath;
+        if (this.context.resourcePath) prefix = this.context.resourcePath;
 
         this.webComponents.loadCSSFile(prefix + 'css/fontawesome-free/all.min.css');
         this.webComponents.loadCSSFile('https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i');
         this.webComponents.loadCSSFile(prefix + 'css/sb-admin/sb-admin-2.min.css');
         this.webComponents.loadCSSFile(prefix + 'css/toastr/toastr.min.css');
+        this.webComponents.loadCSSFile(prefix + 'css/datatables/dataTables.bootstrap4.min.css');
+
         let _this = this;
-        let noOfFiles = 4;
+
+        this.webComponents.loadJSFile(prefix + 'js/chart.js/Chart.min.js', function() {
+          _this.webComponents.loadJSFile(prefix + 'js/chart.js/styling.js');
+        });
+
+        let noOfFiles = 5;
         let count = 0;
         this.webComponents.loadJSFile(prefix + 'js/jquery/jquery.min.js', function() {
           _this.webComponents.loadJSFile(prefix + 'js/bootstrap/bootstrap.bundle.min.js', function() {
@@ -168,6 +179,12 @@ export function load() {
             count++;
             if (count === noOfFiles) _this.isReady();
           });
+          _this.webComponents.loadJSFile(prefix + 'js/datatables/jquery.dataTables.min.js', function() {
+            _this.webComponents.loadJSFile(prefix + 'js/datatables/dataTables.bootstrap4.min.js', function() {
+              count++;
+              if (count === noOfFiles) _this.isReady();
+            });
+          });
         });
       }
     }
@@ -185,6 +202,7 @@ export function load() {
     }
 
     disconnectedCallback() {
+      if (this.onUnload) this.onUnload();
     }
   }
 

@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 February 2020
+ 8 March 2020
 
 */
 
@@ -75,6 +75,7 @@ export function load() {
 
     disconnectedCallback() {
       console.log('*** card component was removed!');
+      if (this.onUnload) this.onUnload();
     }
   }
 

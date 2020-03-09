@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 1 March 2020
+ 8 March 2020
 
  */
 
@@ -97,6 +97,7 @@ export function load() {
     disconnectedCallback() {
       console.log('brand removed!');
       if (this.pageSelect) this.rootElement.addEventListener('click', this.pageSelect);
+      if (this.onUnload) this.onUnload();
     }
 
   }

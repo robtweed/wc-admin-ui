@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 February 2020
+ 7 March 2020
 
  */
 
@@ -59,29 +59,15 @@ export function load() {
     }
 
     connectedCallback() {
-
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('form')[0];
       this.searchBtn = this.rootElement.querySelector('#bs-admin-searchBtn');
       this.searchField = this.rootElement.querySelector('#bs-admin-search-field');
-
-      let _this = this;
-      this.search = function() {
-       /*
-        EWD.send({
-          type: 'bs-admin-search',
-          value: _this.searchField.value
-        }, function(responseObj) {
-          console.log(responseObj);
-        });
-       */
-      };
-      this.searchBtn.addEventListener('click', this.search);
     }
 
     disconnectedCallback() {
       console.log('*** search component was removed!');
-      this.searchBtn.removeEventListener('click', this.search);
+      if (this.onUnload) this.onUnload();
     }
   }
 

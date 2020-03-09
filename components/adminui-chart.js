@@ -24,46 +24,72 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 March 2020
+ 9 March 2020
 
 */
 
 export function load() {
 
-  let componentName = 'adminui-modal-cancel-button';
+  let counter = -1;
+  let componentName = 'adminui-chart';
+  let id_prefix = componentName + '-';
 
-  class adminui_modal_cancel_button extends HTMLElement {
+  class adminui_chart extends HTMLElement {
     constructor() {
       super();
 
+      counter++;
+      let id = id_prefix + counter;
+
       const html = `
-<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+<style>
+  .chart-layout {
+    width: 100%;
+    height: 20rem;
+    position: relative;
+  }
+</style>
+<div class="chart-layout">
+  <canvas id="${id}"></canvas>
+</div>
       `;
+
       this.html = `${html}`;
     }
 
     setState(state) {
-      if (state.text) {
-        this.rootElement.textContent = state.text;
+      if (state.cls) {
+        let _this = this;
+        let clss = state.cls.split(' ');
+        clss.forEach(function(cls) {
+          _this.rootElement.classList.add(cls);
+        });
       }
-      if (state.colour) {
-        let oldColour = this.rootElement.classList.item(1);
-        this.rootElement.classList.remove(oldColour);
-        this.rootElement.classList.add('btn-' + state.colour);
+      if (state.name) {
+        this.name = state.name;
       }
+    }
+
+    draw(config) {
+      let ctx = this.canvas.getContext('2d');
+      this.chart = new Chart(ctx, config);
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
-      this.rootElement = this.getElementsByTagName('button')[0];
+      this.rootElement = this.getElementsByTagName('div')[0];
+      this.canvas = this.rootElement.querySelector('canvas');
+      this.childrenTarget = this.canvas;
+      this.name = 'unnamed-chart-' + counter;
     }
 
     disconnectedCallback() {
-      console.log('*** modal cancel button component was removed!');
+      console.log('*** chart component was removed!');
       if (this.onUnload) this.onUnload();
+      if (this.chart) this.chart.destroy();
     }
   }
 
-  customElements.define(componentName, adminui_modal_cancel_button);
+  customElements.define(componentName, adminui_chart);
 
 }

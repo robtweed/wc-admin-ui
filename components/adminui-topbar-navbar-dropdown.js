@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 February 2020
+ 7 March 2020
 
  */
 
@@ -103,7 +103,7 @@ export function load() {
         items.forEach(function(item, ix) {
           items[ix].state.ref = _this.ref;
         });
-        _this.webComponents.loadGroup(items, _this.itemsTarget, _this.options);
+        _this.webComponents.loadGroup(items, _this.itemsTarget, _this.context);
       };
     }
 

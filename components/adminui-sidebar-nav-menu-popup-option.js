@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 February 2020
+ 8 March 2020
 
  */
 
@@ -76,6 +76,7 @@ export function load() {
     disconnectedCallback() {
       console.log('*** nav-collapse-menu-popup-option was removed!');
       if (this.pageSelect) this.rootElement.addEventListener('click', this.pageSelect);
+      if (this.onUnload) this.onUnload();
     }
   }
 

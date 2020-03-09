@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 February 2020
+ 8 March 2020
 
  */
 
@@ -51,6 +51,7 @@ export function load() {
 
     disconnectedCallback() {
       console.log('*** topbar divider component was removed!');
+      if (this.onUnload) this.onUnload();
     }
   }
 

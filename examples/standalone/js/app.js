@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let page_configs = getConfigs(webComponents);
 
-    let options = {
-      path: './exampleApp/js/'
+    let context = {
+      path: './components/adminui/components/'
     };
 
     webComponents.setLog(true);
@@ -23,13 +23,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let body = document.getElementsByTagName('body')[0];
 
-    webComponents.load('adminui-root', body, options, function(root) {
-
-      webComponents.loadGroup(page_configs.sidebar, root.sidebarTarget, options);
-      webComponents.loadGroup(page_configs.topbar, root.topbarTarget, options);
-      webComponents.loadGroup(page_configs.contentPages.dashboard, root.contentTarget, options);
-      webComponents.loadGroup(page_configs.footer, root.footerTarget, options);
-      webComponents.loadGroup(page_configs.login_modal, body, options);
+    webComponents.load('adminui-root', body, context, function(root) {
+      webComponents.loadGroup(page_configs.sidebar, root.sidebarTarget, context);
+      webComponents.loadGroup(page_configs.topbar, root.topbarTarget, context);
+      webComponents.loadGroup(page_configs.contentPages.dashboard, root.contentTarget, context);
+      webComponents.loadGroup(page_configs.footer, root.footerTarget, context);
+      webComponents.loadGroup(page_configs.login_modal, body, context);
     });
 
 });

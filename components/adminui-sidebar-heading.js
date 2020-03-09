@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 February 2020
+ 8 March 2020
 
  */
 
@@ -50,11 +50,11 @@ export function load() {
     connectedCallback() {
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('div')[0];
-      //this.style = 'display: inline';
     }
 
     disconnectedCallback() {
       console.log('*** heading was removed!');
+      if (this.onUnload) this.onUnload();
     }
   }
 

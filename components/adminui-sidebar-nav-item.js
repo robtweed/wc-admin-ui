@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 February 2020
+ 8 March 2020
 
  */
 
@@ -105,6 +105,7 @@ export function load() {
       console.log('*** nav item single was removed!');
       a.removeEventListener('click', this.toggleActive);
       if (this.pageSelect) this.rootElement.addEventListener('click', this.pageSelect);
+      if (this.onUnload) this.onUnload();
     }
   }
 
