@@ -298,12 +298,24 @@ export function getConfigs(webComponents) {
           {
             componentName: 'adminui-content-card',
             state: {
-              title: '__cardTitle',
-              title_colour: '__cardTitleColour',
-              name: '__cardName',
-              text: '__text'
+              name: '__cardName'
             },
-            children: '__children'
+            children: [
+              {
+                componentName: 'adminui-content-card-header',
+                state: {
+                  title: '__cardTitle',
+                  title_colour: '__cardTitleColour'
+                }
+              },
+              {
+                componentName: 'adminui-content-card-body',
+                state: {
+                  text: '__text'
+                },
+                children: '__children'
+              }
+            ]
           }
         ]
       }

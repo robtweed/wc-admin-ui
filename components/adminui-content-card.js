@@ -37,40 +37,57 @@ export function load() {
       super();
 
       const html = `
-<div class="card shadow mb-4">
-  <div class="card-header py-3">
-    <h6 class="m-0 font-weight-bold text-primary">Undefined Title</h6>
-  </div>
-  <div class="card-body"></div>
-</div>
+<div class="card shadow mb-4"></div>
       `;
 
       this.html = `${html}`;
     }
 
     setState(state) {
-      if (state.title) {
-        this.titleElement.textContent = state.title;
-      }
       if (state.name) {
-        //this.id = 'component-content-card-' + state.name;
         this.name = state.name
       }
+      if (state.title) {
+        if (this.header) {
+          this.header.setState({title: state.title});
+        }
+      }
       if (state.title_colour) {
-        let oldColour = this.titleElement.classList.item(2);
-        this.titleElement.classList.remove(oldColour);
-        this.titleElement.classList.add('text-' + state.title_colour);
+        if (this.header) {
+          this.header.setState({title_colour: state.title_colour});
+        }
       }
       if (state.text) {
-        this.childrenTarget.textContent = state.text;
+        if (this.body) {
+          this.body.setState({text: state.text});
+        }
       }
+      if (state.cls) {
+        let _this = this;
+        state.cls.split(' ').forEach(function(cls) {
+          _this.rootElement.classList.add(cls);
+        });
+      }
+      if (state.hide) {
+        this.setAttribute('style', 'display: none');
+      }
+      if (state.show) {
+        this.setAttribute('style', 'display: inline');
+      }
+    }
+
+    show() {
+      this.setAttribute('style', 'display: inline');
+    }
+
+    hide() {
+      this.setAttribute('style', 'display: none');
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('div')[0];
-      this.titleElement = this.rootElement.querySelector('h6');
-      this.childrenTarget = this.rootElement.querySelector('.card-body');
+      this.childrenTarget = this.rootElement;
     }
 
     disconnectedCallback() {

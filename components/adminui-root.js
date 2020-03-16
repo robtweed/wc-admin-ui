@@ -167,6 +167,7 @@ export function load() {
             count++;
             if (count === noOfFiles) _this.isReady();
           });
+          _this.webComponents.loadJSFile(prefix + 'js/bootstrap/bootstrap-input-spinner.js');
           _this.webComponents.loadJSFile(prefix + 'js/jquery-easing/jquery.easing.min.js', function() {
             count++;
             if (count === noOfFiles) _this.isReady();

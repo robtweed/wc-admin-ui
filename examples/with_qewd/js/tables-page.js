@@ -15,14 +15,24 @@ export function define_tables_page(QEWD) {
       {
         componentName: 'adminui-content-card',
         state: {
-          title: 'Tables Card',
-          title_colour: 'warning',
           name: 'tables-card'
         },
         children: [
           {
-            componentName: 'adminui-datatables',
-            hooks: ['getTableData']
+            componentName: 'adminui-content-card-header',
+            state: {
+              title: 'Tables Card',
+              title_colour: 'warning'
+            }
+          },
+          {
+            componentName: 'adminui-content-card-body',
+            children: [
+              {
+                componentName: 'adminui-datatables',
+                hooks: ['getTableData']
+              }
+            ]
           }
         ]
       }

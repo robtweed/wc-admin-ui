@@ -187,6 +187,14 @@ export function define_sidebar() {
       }
     },
     {
+      componentName: 'adminui-sidebar-nav-item',
+      state: {
+        title: 'Users',
+        icon: 'users',
+        contentPage: 'users'
+      }
+    },
+    {
       componentName: 'adminui-sidebar-divider',
     },
     {

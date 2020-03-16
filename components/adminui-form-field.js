@@ -92,6 +92,24 @@ export function load() {
       if (state.focus) {
         this.inputTag.focus();
       }
+      if (state.value) {
+        this.inputTag.value = state.value;
+      }
+      if (state.readonly) {
+        this.inputTag.setAttribute('readonly', 'readonly');
+      }
+      if (state.readonly === false) {
+        this.inputTag.removeAttribute('readonly');
+      }
+      if (state.row) {
+        this.rootElement.classList.add('row');
+        this.labelTag.className = 'col-sm-' + state.row + ' col-form-label';
+        let div = document.createElement('div');
+        div.className = 'col-sm-' + (12 - state.row);
+        this.rootElement.appendChild(div);
+        this.rootElement.removeChild(this.inputTag);
+        div.appendChild(this.inputTag);
+      }
     }
 
     onLoaded() {
@@ -101,6 +119,7 @@ export function load() {
         _this.form.setFieldValue(_this.name, e.target.value);
       };
       this.inputTag.addEventListener('change', this.fn);
+      this.form.field[this.name] = this;
     }
 
     connectedCallback() {
@@ -108,6 +127,7 @@ export function load() {
       this.rootElement = this.getElementsByTagName('div')[0];
       this.inputTag = this.rootElement.querySelector('input');
       this.labelTag = this.rootElement.querySelector('label');
+      this.name = this.inputTag.id;
     }
 
     disconnectedCallback() {

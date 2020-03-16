@@ -61,6 +61,15 @@ export function load() {
 
       if (state.title) titlediv.textContent = state.title;
 
+      if (state.image) {
+        let img = document.createElement('img');
+        img.src = state.image.src;
+        if (state.image.height) img.setAttribute('height', state.image.height);
+        if (state.image.width) img.setAttribute('width', state.image.width);
+        idiv.appendChild(img);
+        idiv.removeChild(i);
+      }
+
       if (state.icon) {
         let oldClass = i.classList.item(1);
         i.classList.remove(oldClass);

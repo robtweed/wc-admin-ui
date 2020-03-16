@@ -58,7 +58,7 @@ export function load() {
       this.rootElement = this.getElementsByTagName('li')[0];
       this.style = 'height: 56px';
       let li = this.rootElement;
-      let a = li.getElementsByTagName('a')[0];
+      this.aTag = li.getElementsByTagName('a')[0];
       this.toggleActive = function() {
         var activeLink = document.getElementsByClassName('nav-item active')[0];
         if (activeLink) activeLink.classList.remove('active');
@@ -66,12 +66,12 @@ export function load() {
           li.classList.add('active');
         }
       }
-      a.addEventListener('click', this.toggleActive);
+      this.aTag.addEventListener('click', this.toggleActive);
     }
 
     setState(state) {
       let li = this.rootElement;
-      let a = li.getElementsByTagName('a')[0];
+      let a = this.aTag;
       let i = a.getElementsByTagName('i')[0];
       let span = a.getElementsByTagName('span')[0];
 
@@ -109,7 +109,7 @@ export function load() {
 
     disconnectedCallback() {
       console.log('*** nav item single was removed!');
-      a.removeEventListener('click', this.toggleActive);
+      this.aTag.removeEventListener('click', this.toggleActive);
       if (this.pageSelect) this.rootElement.addEventListener('click', this.pageSelect);
       if (this.onUnload) this.onUnload();
     }

@@ -24,30 +24,23 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 02 March 2020
+ 10 March 2020
 
 */
 
 export function load() {
 
-  let componentName = 'adminui-form';
+  let componentName = 'adminui-col';
 
-  class adminui_form extends HTMLElement {
+  class adminui_col extends HTMLElement {
     constructor() {
       super();
 
       const html = `
-<form></form>
+<div class="col"></div>
       `;
+
       this.html = `${html}`;
-    }
-
-    addClass(cls) {
-      this.rootElement.classList.add(cls);
-    }
-
-    removeClass(cls) {
-      this.rootElement.classList.remove(cls);
     }
 
     setState(state) {
@@ -57,34 +50,26 @@ export function load() {
       if (state.cls) {
         let _this = this;
         state.cls.split(' ').forEach(function(cls) {
-          _this.addClass(cls);
+          _this.rootElement.classList.add(cls);
         });
       }
-    }
-
-    setFieldValue(name, value) {
-      this.fieldValues[name] = value;
-      console.log('*** ' + name + ' field set to ' + value);
-    }
-
-    removeField(name) {
-      delete this.fieldValues[name];
+      if (state.text) {
+        this.rootElement.textContent = state.text;
+      }
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
-      this.rootElement = this.getElementsByTagName('form')[0];
+      this.rootElement = this.getElementsByTagName('div')[0];
       this.childrenTarget = this.rootElement;
-      this.field = {};
-      this.fieldValues = {};
     }
 
     disconnectedCallback() {
-      console.log('*** form component was removed!');
+      console.log('*** col component was removed!');
       if (this.onUnload) this.onUnload();
     }
   }
 
-  customElements.define(componentName, adminui_form);
+  customElements.define(componentName, adminui_col);
 
 }

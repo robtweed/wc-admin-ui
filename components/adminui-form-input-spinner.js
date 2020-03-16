@@ -24,20 +24,28 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 02 March 2020
+ 7 March 2020
 
 */
 
 export function load() {
 
-  let componentName = 'adminui-form';
+  let componentName = 'adminui-form-input-spinner';
+  let counter = -1;
+  let id_prefix = componentName + '-';
 
-  class adminui_form extends HTMLElement {
+  class adminui_form_input_spinner extends HTMLElement {
     constructor() {
       super();
 
+      counter++;
+      let id = id_prefix + counter;
+
       const html = `
-<form></form>
+<div class="form-group">
+  <label for="${id}">Undefined Label</label>
+  <input type="number" class="form-control" id="${id}" min="0" max="20" step="1" />
+</div>
       `;
       this.html = `${html}`;
     }
@@ -60,31 +68,61 @@ export function load() {
           _this.addClass(cls);
         });
       }
+      if (state.value) {
+        this.inputTag.value = state.value;
+      }
+      if (state.min) {
+        this.setAttribute('min', state.min);
+      }
+      if (state.max) {
+        this.setAttribute('max', state.max);
+      }
+      if (state.step) {
+        this.setAttribute('step', state.step);
+      }
+      if (state.id) {
+        this.inputTag.id = state.id;
+      }
+      if (state.label === false) {
+        this.labelTag.parentNode.removeChild(this.labelTag);
+      }
+      if (state.label) {
+        this.labelTag.textContent = state.label;
+      }
+      if (state.focus) {
+        this.inputTag.focus();
+      }
+      if (state.attributes) {
+        for (let name in state.attributes) {
+          this.setAttribute(name, state.attributes[name]);
+        }
+      }
     }
 
-    setFieldValue(name, value) {
-      this.fieldValues[name] = value;
-      console.log('*** ' + name + ' field set to ' + value);
-    }
-
-    removeField(name) {
-      delete this.fieldValues[name];
+    onLoaded() {
+      this.form = this.getParentComponent({match: 'adminui-form'});
+      $('#' + this.inputTag.id).inputSpinner();
+      let _this = this;
+      this.fn = function(e) {
+        _this.form.setFieldValue(_this.name, e.target.value);
+      };
+      this.inputTag.addEventListener('change', this.fn);
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
-      this.rootElement = this.getElementsByTagName('form')[0];
-      this.childrenTarget = this.rootElement;
-      this.field = {};
-      this.fieldValues = {};
+      this.rootElement = this.getElementsByTagName('div')[0];
+      this.inputTag = this.rootElement.querySelector('input');
+      this.labelTag = this.rootElement.querySelector('label');
     }
 
     disconnectedCallback() {
       console.log('*** form component was removed!');
       if (this.onUnload) this.onUnload();
+      this.inputTag.removeEventListener('change', this.fn);
     }
   }
 
-  customElements.define(componentName, adminui_form);
+  customElements.define(componentName, adminui_form_input_spinner);
 
 }

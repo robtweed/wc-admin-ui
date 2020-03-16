@@ -15,14 +15,24 @@ export function define_charts_page(QEWD) {
       {
         componentName: 'adminui-content-card',
         state: {
-          title: 'Charts Card',
-          title_colour: 'warning',
           name: 'charts-card'
         },
         children: [
           {
-            componentName: 'adminui-chart',
-            hooks: ['getChartData']
+            componentName: 'adminui-content-card-header',
+            state: {
+              title: 'Charts Card',
+              title_colour: 'warning'
+            }
+          },
+          {
+            componentName: 'adminui-content-card-body',
+            children: [
+              {
+                componentName: 'adminui-chart',
+                hooks: ['getChartData']
+              }
+            ]
           }
         ]
       }

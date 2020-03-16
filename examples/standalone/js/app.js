@@ -8,7 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let page_configs = getConfigs(webComponents);
 
     let context = {
-      path: './components/adminui/components/'
+      paths: {
+        adminui: './components/adminui/components/'
+      },
+      resourcePath: '/components/adminui/',
     };
 
     webComponents.setLog(true);

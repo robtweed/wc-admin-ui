@@ -24,67 +24,70 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 02 March 2020
+ 11 March 2020
 
 */
 
 export function load() {
 
-  let componentName = 'adminui-form';
+  let componentName = 'adminui-content-card-header';
 
-  class adminui_form extends HTMLElement {
+  class adminui_content_card_header extends HTMLElement {
     constructor() {
       super();
 
       const html = `
-<form></form>
+<div class="card-header py-3"></div>
       `;
+
       this.html = `${html}`;
     }
 
-    addClass(cls) {
-      this.rootElement.classList.add(cls);
-    }
-
-    removeClass(cls) {
-      this.rootElement.classList.remove(cls);
-    }
-
     setState(state) {
+      if (state.title) {
+        if (!this.titleElement) {
+          let h6 = document.createElement('h6');
+          h6.className = 'm-0 font-weight-bold text-primary';
+          this.rootElement.appendChild(h6);
+          this.titleElement = h6;
+        }
+        this.titleElement.textContent = state.title;
+      }
       if (state.name) {
-        this.name = state.name;
+        this.name = state.name
+      }
+      if (state.title_colour) {
+        if (this.titleElement) {
+          let oldColour = this.titleElement.classList.item(2);
+          this.titleElement.classList.remove(oldColour);
+          this.titleElement.classList.add('text-' + state.title_colour);
+        }
       }
       if (state.cls) {
         let _this = this;
         state.cls.split(' ').forEach(function(cls) {
-          _this.addClass(cls);
+          _this.rootElement.classList.add(cls);
         });
       }
     }
 
-    setFieldValue(name, value) {
-      this.fieldValues[name] = value;
-      console.log('*** ' + name + ' field set to ' + value);
-    }
-
-    removeField(name) {
-      delete this.fieldValues[name];
+    onLoaded() {
+      let card = this.getParentComponent({match: 'adminui-content-card'});
+      card.header = this;
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
-      this.rootElement = this.getElementsByTagName('form')[0];
+      this.rootElement = this.getElementsByTagName('div')[0];
       this.childrenTarget = this.rootElement;
-      this.field = {};
-      this.fieldValues = {};
     }
 
     disconnectedCallback() {
-      console.log('*** form component was removed!');
+      console.log('*** card header component was removed!');
       if (this.onUnload) this.onUnload();
     }
   }
 
-  customElements.define(componentName, adminui_form);
+  customElements.define(componentName, adminui_content_card_header);
 
 }

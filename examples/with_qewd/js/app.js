@@ -26,6 +26,7 @@ import {define_register_page} from './register-page.js';
 import {define_forgot_password_page} from './forgot-password-page.js';
 import {define_404_page} from './404-page.js';
 import {define_blank_page} from './blank-page.js';
+import {define_users_page} from './users.js';
 
 import {contentPage} from './content-page.js';
 
@@ -63,6 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
     webComponents.addComponent('forgot_password_page', define_forgot_password_page());
     webComponents.addComponent('page_404', define_404_page());
     webComponents.addComponent('blank_page', define_blank_page());
+    webComponents.addComponent('users_page', define_users_page(QEWD, webComponents));
 
     // create the context for running the web components
 
@@ -108,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
     webComponents.register('forgot_password', webComponents.components.forgot_password_page);
     webComponents.register('page404', webComponents.components.page_404);
     webComponents.register('blank', webComponents.components.blank_page);
-
+    webComponents.register('users', webComponents.components.users_page);
 
     // set up the initial display prior to login
 
