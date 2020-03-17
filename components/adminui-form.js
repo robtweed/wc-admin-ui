@@ -64,7 +64,7 @@ export function load() {
 
     setFieldValue(name, value) {
       this.fieldValues[name] = value;
-      console.log('*** ' + name + ' field set to ' + value);
+      //console.log('*** ' + name + ' field set to ' + value);
     }
 
     removeField(name) {
