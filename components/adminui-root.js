@@ -94,9 +94,9 @@ export function load() {
 
     switchToPage(pageName) {
       if (!this.contentPages[pageName]) {
-        let config = this.webComponents.getInstanceFromRegistry(pageName);
+        let config = this.getInstanceFromRegistry(pageName);
         if (config) {
-          this.webComponents.loadGroup(config, this.contentTarget, this.context);
+          this.loadGroup(config, this.contentTarget, this.context);
           this.contentPages[pageName] = true;
           // setPageActive will get triggered when page config is loaded
         }
