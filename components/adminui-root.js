@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 March 2020
+ 18 March 2020
 
 */
 
@@ -38,13 +38,6 @@ export function load() {
       super();
 
       const html = `
-<!-- NOTE: These stylesheets must also be loaded in the index.html parent page -->
-<!--
-<link href="css/fontawesome-free/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-<link href="css/sb-admin/sb-admin-2.min.css" rel="stylesheet">
--->
-
 <div id="page-top">
   <div id="wrapper">
     <!-- Sidebar -->
@@ -126,68 +119,68 @@ export function load() {
         if (!sidebar_colour.includes('-')) sidebar_colour = 'bg-gradient-' + state.sidebar_colour;
         target.add(sidebar_colour);
       }
-      if (state.webComponents) {
-        this.webComponents = state.webComponents;
+    }
 
-        this.webComponents.addMetaTag({
-          charset: 'utf-8'
+    onLoaded() {
+
+      this.addMetaTag({
+        charset: 'utf-8'
+      });
+      this.addMetaTag({
+        'http-equiv': 'X-UA-Compatible',
+        content: 'IE=edge'
+      });
+      this.addMetaTag({
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1, shrink-to-fit=no'
+      });
+      this.addMetaTag({
+        name: 'apple-mobile-web-app-capable',
+        content: 'yes'
+      });
+
+      let prefix = '';
+      if (this.context.resourcePath) prefix = this.context.resourcePath;
+
+      this.loadCSSFile(prefix + 'css/fontawesome-free/all.min.css');
+      this.loadCSSFile('https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i');
+      this.loadCSSFile(prefix + 'css/sb-admin/sb-admin-2.min.css');
+      this.loadCSSFile(prefix + 'css/toastr/toastr.min.css');
+      this.loadCSSFile(prefix + 'css/datatables/dataTables.bootstrap4.min.css');
+
+      let _this = this;
+
+      this.loadJSFile(prefix + 'js/chart.js/Chart.min.js', function() {
+        _this.loadJSFile(prefix + 'js/chart.js/styling.js');
+      });
+
+      let noOfFiles = 5;
+      let count = 0;
+      this.loadJSFile(prefix + 'js/jquery/jquery.min.js', function() {
+        _this.loadJSFile(prefix + 'js/bootstrap/bootstrap.bundle.min.js', function() {
+          count++;
+          if (count === noOfFiles) _this.isReady();
         });
-        this.webComponents.addMetaTag({
-          'http-equiv': 'X-UA-Compatible',
-          content: 'IE=edge'
+        _this.loadJSFile(prefix + 'js/bootstrap/bootstrap-input-spinner.js');
+        _this.loadJSFile(prefix + 'js/jquery-easing/jquery.easing.min.js', function() {
+          count++;
+          if (count === noOfFiles) _this.isReady();
         });
-        this.webComponents.addMetaTag({
-          name: 'viewport',
-          content: 'width=device-width, initial-scale=1, shrink-to-fit=no'
+        _this.loadJSFile(prefix + 'js/sb-admin/sb-admin-2.min.js', function() {
+          count++;
+          if (count === noOfFiles) _this.isReady();
         });
-        this.webComponents.addMetaTag({
-          name: 'apple-mobile-web-app-capable',
-          content: 'yes'
+        _this.loadJSFile(prefix + 'js/toastr/toastr.min.js', function() {
+          count++;
+          if (count === noOfFiles) _this.isReady();
         });
-
-        let prefix = '';
-        if (this.context.resourcePath) prefix = this.context.resourcePath;
-
-        this.webComponents.loadCSSFile(prefix + 'css/fontawesome-free/all.min.css');
-        this.webComponents.loadCSSFile('https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i');
-        this.webComponents.loadCSSFile(prefix + 'css/sb-admin/sb-admin-2.min.css');
-        this.webComponents.loadCSSFile(prefix + 'css/toastr/toastr.min.css');
-        this.webComponents.loadCSSFile(prefix + 'css/datatables/dataTables.bootstrap4.min.css');
-
-        let _this = this;
-
-        this.webComponents.loadJSFile(prefix + 'js/chart.js/Chart.min.js', function() {
-          _this.webComponents.loadJSFile(prefix + 'js/chart.js/styling.js');
-        });
-
-        let noOfFiles = 5;
-        let count = 0;
-        this.webComponents.loadJSFile(prefix + 'js/jquery/jquery.min.js', function() {
-          _this.webComponents.loadJSFile(prefix + 'js/bootstrap/bootstrap.bundle.min.js', function() {
+        _this.loadJSFile(prefix + 'js/datatables/jquery.dataTables.min.js', function() {
+          _this.loadJSFile(prefix + 'js/datatables/dataTables.bootstrap4.min.js', function() {
             count++;
             if (count === noOfFiles) _this.isReady();
           });
-          _this.webComponents.loadJSFile(prefix + 'js/bootstrap/bootstrap-input-spinner.js');
-          _this.webComponents.loadJSFile(prefix + 'js/jquery-easing/jquery.easing.min.js', function() {
-            count++;
-            if (count === noOfFiles) _this.isReady();
-          });
-          _this.webComponents.loadJSFile(prefix + 'js/sb-admin/sb-admin-2.min.js', function() {
-            count++;
-            if (count === noOfFiles) _this.isReady();
-          });
-          _this.webComponents.loadJSFile(prefix + 'js/toastr/toastr.min.js', function() {
-            count++;
-            if (count === noOfFiles) _this.isReady();
-          });
-          _this.webComponents.loadJSFile(prefix + 'js/datatables/jquery.dataTables.min.js', function() {
-            _this.webComponents.loadJSFile(prefix + 'js/datatables/dataTables.bootstrap4.min.js', function() {
-              count++;
-              if (count === noOfFiles) _this.isReady();
-            });
-          });
         });
-      }
+      });
     }
 
     connectedCallback() {

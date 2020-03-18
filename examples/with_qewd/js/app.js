@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // now load up the initial view
 
-    webComponents.load('adminui-root', body, context, function(root) {
+    webComponents.loadWebComponent('adminui-root', body, context, function(root) {
       let components = webComponents.components;
       webComponents.loadGroup(components.initial_sidebar, root.sidebarTarget, context);
       webComponents.loadGroup(components.login_modal, body, context);

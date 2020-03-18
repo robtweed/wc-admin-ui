@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let body = document.getElementsByTagName('body')[0];
 
-    webComponents.load('adminui-root', body, context, function(root) {
+    webComponents.loadWebComponent('adminui-root', body, context, function(root) {
       webComponents.loadGroup(page_configs.sidebar, root.sidebarTarget, context);
       webComponents.loadGroup(page_configs.topbar, root.topbarTarget, context);
       webComponents.loadGroup(page_configs.contentPages.dashboard, root.contentTarget, context);
