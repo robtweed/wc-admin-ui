@@ -31,10 +31,14 @@
 export function load() {
 
   let componentName = 'adminui-content-card';
+  let counter = -1;
+  let id_prefix = componentName + '-';
 
   class adminui_content_card extends HTMLElement {
     constructor() {
       super();
+
+      counter++;
 
       const html = `
 <div class="card shadow mb-4"></div>
@@ -88,6 +92,7 @@ export function load() {
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('div')[0];
       this.childrenTarget = this.rootElement;
+      this.name = id_prefix + counter;
     }
 
     disconnectedCallback() {

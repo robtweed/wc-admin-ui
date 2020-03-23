@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 March 2020
+ 23 March 2020
 
  */
 
@@ -102,7 +102,7 @@ export function load() {
     }
 
     disconnectedCallback() {
-      console.log('*** dropdown item component was removed!');
+      //console.log('*** dropdown item component was removed!');
       this.aTag.removeEventListener('click', this.getDropdownItemDetail);
       if (this.onUnload) this.onUnload();
     }

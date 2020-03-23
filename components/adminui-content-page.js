@@ -72,7 +72,7 @@ export function load() {
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('div')[0];
       this.childrenTarget = this.rootElement;
-      this.name = 'undefined-name-' + counter;
+      this.name = id_prefix + counter;
     }
 
     disconnectedCallback() {

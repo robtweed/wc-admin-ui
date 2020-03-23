@@ -30,11 +30,11 @@
 
 export function load() {
 
-  let componentName = 'adminui-form-field';
+  let componentName = 'adminui-form-radio';
   let counter = -1;
   let id_prefix = componentName + '-';
 
-  class adminui_form_field extends HTMLElement {
+  customElements.define(componentName, class adminui_form_radio extends HTMLElement {
     constructor() {
       super();
 
@@ -42,9 +42,9 @@ export function load() {
       let id = id_prefix + counter;
 
       const html = `
-<div class="form-group">
-  <label for="${id}">Undefined Label</label>
-  <input type="text" class="form-control" id="${id}" placeholder="Enter Text...">
+<div class="form-check">
+  <input class="form-check-input" type="radio" id="${id}">
+  <label class="form-check-label" for="${id}">Undefined Label</label>
 </div>
       `;
       this.html = `${html}`;
@@ -60,19 +60,13 @@ export function load() {
 
     setState(state) {
       if (state.name) {
+        // delete old form reference
+        let oldName = this.name;
+        this.setFormReference.call(this, state.name, this.value);
+        delete this.form.radios[oldName];
+
         this.name = state.name;
-      }
-      if (state.type) {
-        this.inputTag.setAttribute('type', state.type);
-        if (state.type === 'email') {
-          this.inputTag.setAttribute('aria-describedby', 'emailHelp');
-        }
-      }
-      if (state.placeholder === false) {
-        this.inputTag.removeAttribute('placeholder');
-      }
-      if (state.placeholder) {
-        this.inputTag.setAttribute('placeholder', state.placeholder);
+        this.inputTag.setAttribute('name', state.name);
       }
       if (state.cls) {
         let _this = this;
@@ -82,7 +76,7 @@ export function load() {
       }
       if (state.id) {
         this.inputTag.id = state.id;
-        this.labelTag.setAttribute('for', id);
+        this.labelTag.setAttribute('for', state.id);
       }
       if (state.label === false) {
         this.labelTag.parentNode.removeChild(this.labelTag);
@@ -93,35 +87,64 @@ export function load() {
       if (state.focus) {
         this.inputTag.focus();
       }
-      if (typeof state.value !== 'undefined') {
+      if (state.checked) {
+        this.inputTag.setAttribute('checked', 'checked');
+      }
+      if (state.checked === false) {
+        this.inputTag.removeAttribute('checked');
+      }
+      if (state.value) {
         this.inputTag.value = state.value;
+        this.setFormReference.call(this, this.name, state.value);
         this.form.setFieldValue(this.name, state.value);
       }
       if (state.readonly) {
-        this.inputTag.setAttribute('readonly', 'readonly');
+        this.inputTag.setAttribute('disabled', 'disabled');
       }
       if (state.readonly === false) {
-        this.inputTag.removeAttribute('readonly');
+        this.inputTag.removeAttribute('disabled');
       }
-      if (state.row) {
-        this.rootElement.classList.add('row');
-        this.labelTag.className = 'col-sm-' + state.row + ' col-form-label';
-        let div = document.createElement('div');
-        div.className = 'col-sm-' + (12 - state.row);
-        this.rootElement.appendChild(div);
-        this.rootElement.removeChild(this.inputTag);
-        div.appendChild(this.inputTag);
+      if (state.inline) {
+        this.rootElement.classList.add('form-check-inline');
+      }
+      if (state.inline === false) {
+        this.rootElement.classList.remove('form-check-inline');
+      }
+    }
+
+    setValue(value) {
+      this.setState({value: value});
+    }
+
+    setFormReference(name, value) {
+      if (!this.form) this.form = this.getParentComponent({match: 'adminui-form'});
+      if (!this.form.radios) {
+        this.form.radios = {};
+      }
+      if (name && !this.form.radios[name]) {
+        this.form.radios[name] = {};
+      }
+      if (value) {
+        this.form.radios[name][value] = this;
       }
     }
 
     onLoaded() {
       this.form = this.getParentComponent({match: 'adminui-form'});
+      this.setFormReference.call(this, this.name, this.value);
+      let radioGroup = this.getParentComponent('adminui-form-radio-group');
       let _this = this;
       this.fn = function(e) {
         _this.form.setFieldValue(_this.name, e.target.value);
       };
       this.inputTag.addEventListener('change', this.fn);
-      this.form.field[this.name] = this;
+      if (radioGroup) {
+        this.form.field[this.name] = radioGroup;
+        if (this.inputTag.value) radioGroup.radios[this.inputTag.value] = this;
+      }
+      else {
+        this.form.field[this.name] = this;
+      }
     }
 
     connectedCallback() {
@@ -130,6 +153,7 @@ export function load() {
       this.inputTag = this.rootElement.querySelector('input');
       this.labelTag = this.rootElement.querySelector('label');
       this.name = this.inputTag.id;
+      this.type = 'radio';
     }
 
     disconnectedCallback() {
@@ -137,8 +161,8 @@ export function load() {
       if (this.onUnload) this.onUnload();
       this.inputTag.removeEventListener('change', this.fn);
     }
-  }
 
-  customElements.define(componentName, adminui_form_field);
+  });
 
-}
+};
+

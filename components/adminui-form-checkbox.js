@@ -30,11 +30,11 @@
 
 export function load() {
 
-  let componentName = 'adminui-form-field';
+  let componentName = 'adminui-form-checkbox';
   let counter = -1;
   let id_prefix = componentName + '-';
 
-  class adminui_form_field extends HTMLElement {
+  customElements.define(componentName, class adminui_form_checkbox extends HTMLElement {
     constructor() {
       super();
 
@@ -44,7 +44,7 @@ export function load() {
       const html = `
 <div class="form-group">
   <label for="${id}">Undefined Label</label>
-  <input type="text" class="form-control" id="${id}" placeholder="Enter Text...">
+  <select class="form-control" id="${id}">
 </div>
       `;
       this.html = `${html}`;
@@ -62,18 +62,6 @@ export function load() {
       if (state.name) {
         this.name = state.name;
       }
-      if (state.type) {
-        this.inputTag.setAttribute('type', state.type);
-        if (state.type === 'email') {
-          this.inputTag.setAttribute('aria-describedby', 'emailHelp');
-        }
-      }
-      if (state.placeholder === false) {
-        this.inputTag.removeAttribute('placeholder');
-      }
-      if (state.placeholder) {
-        this.inputTag.setAttribute('placeholder', state.placeholder);
-      }
       if (state.cls) {
         let _this = this;
         state.cls.split(' ').forEach(function(cls) {
@@ -90,18 +78,44 @@ export function load() {
       if (state.label) {
         this.labelTag.textContent = state.label;
       }
-      if (state.focus) {
-        this.inputTag.focus();
+      if (state.options) {
+        let _this = this;
+        this.options = {};
+        this.selected = false;
+        // remove any existing options
+        let children = [...this.selectTag.childNodes];
+        children.forEach(function(child) {
+          child.parentNode.removeChild(child);
+        });
+        // create new options
+        state.options.forEach(function(option) {
+          let optionTag = document.createElement('option');
+          optionTag.value = option.value || option.text;
+          optionTag.text = option.text;
+          _this.options[option.value] = optionTag;
+          _this.selectTag.appendChild(optionTag);
+        });
       }
-      if (typeof state.value !== 'undefined') {
-        this.inputTag.value = state.value;
-        this.form.setFieldValue(this.name, state.value);
+      if (state.focus) {
+        this.selectTag.focus();
+      }
+      if (state.value) {
+        if (this.selected) {
+          this.selected.removeAttribute('selected');
+        }
+        let optionTag = this.options[state.value];
+        if (optionTag) {
+          optionTag.setAttribute('selected', 'selected');
+          this.selected = optionTag;
+          this.form.setFieldValue(this.name, state.value);
+        }
+        this.selectTag.value = state.value;
       }
       if (state.readonly) {
-        this.inputTag.setAttribute('readonly', 'readonly');
+        this.selectTag.setAttribute('disabled', 'disabled');
       }
       if (state.readonly === false) {
-        this.inputTag.removeAttribute('readonly');
+        this.selectTag.removeAttribute('disabled');
       }
       if (state.row) {
         this.rootElement.classList.add('row');
@@ -109,9 +123,13 @@ export function load() {
         let div = document.createElement('div');
         div.className = 'col-sm-' + (12 - state.row);
         this.rootElement.appendChild(div);
-        this.rootElement.removeChild(this.inputTag);
-        div.appendChild(this.inputTag);
+        this.rootElement.removeChild(this.selectTag);
+        div.appendChild(this.selectTag);
       }
+    }
+
+    setValue(value) {
+      this.setState({value: value});
     }
 
     onLoaded() {
@@ -120,25 +138,28 @@ export function load() {
       this.fn = function(e) {
         _this.form.setFieldValue(_this.name, e.target.value);
       };
-      this.inputTag.addEventListener('change', this.fn);
+      this.selectTag.addEventListener('change', this.fn);
       this.form.field[this.name] = this;
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('div')[0];
-      this.inputTag = this.rootElement.querySelector('input');
+      this.selectTag = this.rootElement.querySelector('select');
       this.labelTag = this.rootElement.querySelector('label');
-      this.name = this.inputTag.id;
+      this.name = this.selectTag.id;
+      this.options = {};
+      this.selected = false;
+      this.type = 'select';
     }
 
     disconnectedCallback() {
       console.log('*** form component was removed!');
       if (this.onUnload) this.onUnload();
-      this.inputTag.removeEventListener('change', this.fn);
+      this.selectTag.removeEventListener('change', this.fn);
     }
-  }
 
-  customElements.define(componentName, adminui_form_field);
+  });
 
-}
+};
+

@@ -38,7 +38,9 @@ export function load() {
 
       const html = `
 <div class="modal-header">
-  <h5 class="modal-title">Undefined Title</h5>
+  <h5 class="modal-title">
+    <span>Undefined Title</span>
+  </h5>
 </div>
       `;
       this.html = `${html}`;
@@ -46,7 +48,10 @@ export function load() {
 
     setState(state) {
       if (state.title) {
-        this.rootElement.textContent = state.title;
+        this.spanTag.textContent = state.title;
+      }
+      if (state.name) {
+        this.name = state.name;
       }
     }
 
@@ -58,6 +63,7 @@ export function load() {
     connectedCallback() {
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('div')[0];
+      this.spanTag = this.rootElement.querySelector('span');
       this.childrenTarget = this.rootElement;
     }
 

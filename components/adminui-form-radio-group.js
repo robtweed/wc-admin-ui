@@ -30,11 +30,11 @@
 
 export function load() {
 
-  let componentName = 'adminui-form-field';
+  let componentName = 'adminui-form-radio-group';
   let counter = -1;
   let id_prefix = componentName + '-';
 
-  class adminui_form_field extends HTMLElement {
+  customElements.define(componentName, class adminui_form_radio_group extends HTMLElement {
     constructor() {
       super();
 
@@ -42,10 +42,7 @@ export function load() {
       let id = id_prefix + counter;
 
       const html = `
-<div class="form-group">
-  <label for="${id}">Undefined Label</label>
-  <input type="text" class="form-control" id="${id}" placeholder="Enter Text...">
-</div>
+<div class="form-check-label" id="${id}"></div>
       `;
       this.html = `${html}`;
     }
@@ -61,84 +58,78 @@ export function load() {
     setState(state) {
       if (state.name) {
         this.name = state.name;
-      }
-      if (state.type) {
-        this.inputTag.setAttribute('type', state.type);
-        if (state.type === 'email') {
-          this.inputTag.setAttribute('aria-describedby', 'emailHelp');
-        }
-      }
-      if (state.placeholder === false) {
-        this.inputTag.removeAttribute('placeholder');
-      }
-      if (state.placeholder) {
-        this.inputTag.setAttribute('placeholder', state.placeholder);
+        // need to spin through child radio buttons and update those too
+        let radios = [...this.getElementsByTagName('adminui-form-radio')];
+        radios.forEach(function(radio) {
+          radio.setState({name: state.name});
+        });
       }
       if (state.cls) {
         let _this = this;
         state.cls.split(' ').forEach(function(cls) {
-          _this.addClass(cls);
+          _this.rootElement.addClass(cls);
         });
       }
-      if (state.id) {
-        this.inputTag.id = state.id;
-        this.labelTag.setAttribute('for', id);
-      }
-      if (state.label === false) {
-        this.labelTag.parentNode.removeChild(this.labelTag);
-      }
-      if (state.label) {
-        this.labelTag.textContent = state.label;
-      }
-      if (state.focus) {
-        this.inputTag.focus();
-      }
-      if (typeof state.value !== 'undefined') {
-        this.inputTag.value = state.value;
-        this.form.setFieldValue(this.name, state.value);
+      if (state.radios) {
+        let _this = this;
+
+        function addRadio(no) {
+          if (no === state.radios.length) return;
+          var radio = state.radios[no];
+
+          var assembly = {
+            componentName: 'adminui-form-radio',
+            state: {
+              id: _this.name + '-' + no,
+              name: _this.name,
+              value: radio.value,
+              label: radio.text
+            }
+          };
+          _this.loadGroup(assembly, _this.childrenTarget, _this.context, function() {
+            addRadio(no + 1);
+          });
+        }
+
+        addRadio(0);
       }
       if (state.readonly) {
-        this.inputTag.setAttribute('readonly', 'readonly');
+        let radios = [...this.getElementsByTagName('adminui-form-radio')];
+        radios.forEach(function(radio) {
+          radio.setState({readonly: true});
+        });
       }
       if (state.readonly === false) {
-        this.inputTag.removeAttribute('readonly');
+        let radios = [...this.getElementsByTagName('adminui-form-radio')];
+        radios.forEach(function(radio) {
+          radio.setState({readonly: false});
+        });
       }
-      if (state.row) {
-        this.rootElement.classList.add('row');
-        this.labelTag.className = 'col-sm-' + state.row + ' col-form-label';
-        let div = document.createElement('div');
-        div.className = 'col-sm-' + (12 - state.row);
-        this.rootElement.appendChild(div);
-        this.rootElement.removeChild(this.inputTag);
-        div.appendChild(this.inputTag);
+      if (state.selectedValue) {
+        let radio = this.radios[state.selectedValue];
+        radio.setState({checked: true});
       }
     }
 
     onLoaded() {
       this.form = this.getParentComponent({match: 'adminui-form'});
-      let _this = this;
-      this.fn = function(e) {
-        _this.form.setFieldValue(_this.name, e.target.value);
-      };
-      this.inputTag.addEventListener('change', this.fn);
-      this.form.field[this.name] = this;
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('div')[0];
-      this.inputTag = this.rootElement.querySelector('input');
-      this.labelTag = this.rootElement.querySelector('label');
-      this.name = this.inputTag.id;
+      this.childrenTarget = this.rootElement;
+      this.name = id_prefix + counter;
+      this.type = 'radio-group';
+      this.radios = {};
     }
 
     disconnectedCallback() {
       console.log('*** form component was removed!');
       if (this.onUnload) this.onUnload();
-      this.inputTag.removeEventListener('change', this.fn);
     }
-  }
 
-  customElements.define(componentName, adminui_form_field);
+  });
 
-}
+};
+

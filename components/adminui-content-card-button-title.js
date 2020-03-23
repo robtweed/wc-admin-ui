@@ -40,6 +40,7 @@ export function load() {
     constructor() {
       super();
 
+      counter++;
       let id = id_prefix + 'btn-' + counter;
 
       const html = `
@@ -103,6 +104,14 @@ export function load() {
         // make sure the tooltip is removed if the component is unloaded
         this.registerUnloadMethod(removeTooltip);
       }
+    }
+
+    hideButton() {
+      $('#' + this.button.id).parent().hide();
+    }
+
+    showButton() {
+      $('#' + this.button.id).parent().show();
     }
 
     connectedCallback() {

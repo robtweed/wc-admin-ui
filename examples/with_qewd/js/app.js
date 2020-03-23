@@ -28,6 +28,9 @@ import {define_404_page} from './404-page.js';
 import {define_blank_page} from './blank-page.js';
 import {define_users_page} from './users.js';
 
+import {crud_assembly} from '../../components/adminui/components/adminui-crud.js';
+
+
 import {contentPage} from './content-page.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -64,7 +67,100 @@ document.addEventListener('DOMContentLoaded', function() {
     webComponents.addComponent('forgot_password_page', define_forgot_password_page());
     webComponents.addComponent('page_404', define_404_page());
     webComponents.addComponent('blank_page', define_blank_page());
-    webComponents.addComponent('users_page', define_users_page(QEWD, webComponents));
+    //webComponents.addComponent('users_page', define_users_page(QEWD));
+
+    let userPageState = {
+      name: 'users',
+      title: 'Users',
+      summary: {
+        title: 'Current Users',
+        titleColour: 'info',
+        btnIcon: 'user-plus',
+        btnColour: 'success',
+        btnTooltip: 'Add a New User',
+        headers: ['Name', 'Email'],
+        data_properties: ['name', 'email'],
+        qewd: {
+          getSummary: 'getUsers',
+          getDetail: 'getUserInfo',
+          delete: 'deleteUser'
+        },
+        rowBtnIcon: 'user-edit',
+        rowBtnColour: 'info',
+        enableDelete: true,
+        deleteConfirmDisplayColumn: 0
+      },
+      detail: {
+        newRecordTitle: 'Enter New User',
+        titleColour: 'info',
+        btnIcon: 'user-cog',
+        btnColour: 'success',
+        btnTooltip: 'Edit User Details',
+        title_data_property: 'name',
+        fields: [
+          {
+            name: 'name',
+            data_property: 'name',
+            label: 'Name',
+            type: 'text',
+            labelWidth: 4
+          },
+          {
+            name: 'email',
+            data_property: 'email',
+            label: 'Email',
+            type: 'text',
+            labelWidth: 4
+          },
+          {
+            name: 'username',
+            data_property: 'username',
+            label: 'Username',
+            type: 'text',
+            labelWidth: 4
+          },
+          {
+            name: 'phone',
+            data_property: 'phone',
+            label: 'Telephone',
+            type: 'text',
+            labelWidth: 4
+          },
+          {
+            name: 'gender',
+            data_property: 'gender',
+            label: 'Gender',
+            type: 'select',
+            labelWidth: 4,
+            options: [
+              {text: 'Male', value: 'm'},
+              {text: 'Female', value: 'f'},
+              {text: 'Not Specified', value: 'x'}
+            ]
+          },
+          {
+            name: 'userType',
+            data_property: 'userType',
+            label: 'Type of User',
+            type: 'radios',
+            radios: [
+              {text: 'Administrator', value: 'admin'},
+              {text: 'Public', value: 'public'},
+              {text: 'Not Specified', value: 'x'}
+            ]
+          }
+        ]
+      },
+      update: {
+        btnText: 'Save',
+        btnColour: 'warning',
+        qewd: {
+          save: 'updateUser'
+        }
+      }
+    };
+
+    webComponents.addComponent('users_page', crud_assembly(QEWD, userPageState));
 
     // create the context for running the web components
 
@@ -73,7 +169,6 @@ document.addEventListener('DOMContentLoaded', function() {
         adminui: './components/adminui/components/'
       },
       resourcePath: '/components/adminui/',
-      hooks: webComponents.hooks,
       readyEvent: new Event('ready')
     };
 
@@ -91,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     context.loadMainView = loadMainView;
 
-    webComponents.setLog(true);
+    //webComponents.setLog(true);
 
     // register the content page configurations, ready for lazy loading on demand
     //  this makes them accessible via the contentPage state values (see sidebar component)
@@ -140,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   QEWD.start({
-    application: 'adminui-demo'
+    application: 'demo'
   });
 
 });

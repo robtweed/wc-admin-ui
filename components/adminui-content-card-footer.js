@@ -24,78 +24,76 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 March 2020
+ 19 March 2020
 
 */
 
 export function load() {
 
-  let componentName = 'adminui-button';
-  let colour = 'btn-primary';
+  let componentName = 'adminui-content-card-footer';
+  let counter = -1;
+  let id_prefix = componentName + '-';
 
-  class adminui_button extends HTMLElement {
+  customElements.define(componentName, class adminui_content_card_footer extends HTMLElement {
     constructor() {
       super();
 
+      counter++;
+      let id = id_prefix + counter;
+
       const html = `
-<button class="btn btn-primary" href="#">Undefined</button>
+<div class="card-footer" id="${id}"></div>
       `;
+
       this.html = `${html}`;
     }
 
-    addClass(cls) {
-      this.rootElement.classList.add(cls);
-    }
-
-    removeClass(cls) {
-      this.rootElement.classList.remove(cls);
-    }
-
     setState(state) {
-      if (state.text) {
-        this.rootElement.textContent = state.text;
-      }
-      if (state.colour) {
-        this.rootElement.classList.remove(colour);
-        colour = 'btn-' + state.colour;
-        this.rootElement.classList.add(colour);
-      }
       if (state.name) {
-        this.name = state.name;
+        this.name = state.name
       }
       if (state.cls) {
         let _this = this;
         state.cls.split(' ').forEach(function(cls) {
-          _this.addClass(cls);
+          _this.rootElement.classList.add(cls);
         });
       }
-      if (state.icon) {
-        if (!this.i) {
-          this.rootElement.textContent = '';
-          let i = document.createElement('i');
-          this.rootElement.appendChild(i);
-          this.i = i;
-        }
-        this.i.className = 'fas fa-' + state.icon;
+      if (state.text) {
+        this.rootElement.textContent = state.text;
       }
-      if (state.use_modal) {
-        this.rootElement.setAttribute('data-toggle', 'modal');
-        let modalRoot = this.getComponentByName('adminui-modal-root', state.use_modal); 
-        if (modalRoot) this.rootElement.setAttribute('data-target', '#' + modalRoot.rootElement.id);
+      if (state.hidden) {
+        $("#" + this.rootElement.id).hide();
       }
+      if (state.visible) {
+        $("#" + this.rootElement.id).show();
+      }
+    }
+
+    show() {
+      $("#" + this.rootElement.id).show();
+    }
+
+    hide() {
+      $("#" + this.rootElement.id).hide();
+    }
+
+
+    onLoaded() {
+      let card = this.getParentComponent({match: 'adminui-content-card'});
+      if (card) card.footer = this;
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
-      this.rootElement = this.getElementsByTagName('button')[0];
+      this.rootElement = this.getElementsByTagName('div')[0];
+      this.childrenTarget = this.rootElement;
     }
 
     disconnectedCallback() {
-      console.log('*** button component was removed!');
+      console.log('*** card header component was removed!');
       if (this.onUnload) this.onUnload();
     }
-  }
 
-  customElements.define(componentName, adminui_button);
+  });
+};
 
-}
