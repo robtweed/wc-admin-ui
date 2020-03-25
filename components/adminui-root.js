@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 18 March 2020
+ 25 March 2020
 
 */
 
@@ -108,7 +108,9 @@ export function load() {
     }
 
     isReady() {
-      document.dispatchEvent(this.context.readyEvent);
+      if (this.context.readyEvent) {
+        document.dispatchEvent(this.context.readyEvent);
+      }
     }
 
     setState(state) {
