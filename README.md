@@ -18,15 +18,55 @@ This library is designed for use with the
 
 # Setting up your project
 
-- Under your Web Server root directory (eg *~/qewd/www*), create the following folder/file structure:
+- Clone the repository to a folder path named "components/adminui" under your Web Server root directory (eg *~/qewd/www*), eg:
 
-        - myProject
-          |
-          |- js
-          |
-          |- css
-          |
-          |- index.html
+        cd ~/qewd/www
+        mkdir components
+        cd components
+        mkdir adminui
+        cd ~
+        git clone https://github.com/robtweed/qewd-jsdb ~/qewd/www/components/adminui
+
+Under your Web Server's root directory you should therefore now have:
+
+        |- components
+        |  |
+        |  |- adminui
+        |  |   |
+        |  |   |- examples
+        |  |   |
+        |  |   |- js
+        |  |   |
+        |  |   |- css
+        |  |   |
+        |  |   |- components
+
+
+The *js* and *css* sub-folders contain all the JavaScript and CSS resources respectively
+for Bootstrap 4 etc.  These are loaded automatically by the *adminui* root component.
+
+The *examples* sub-folder contains some worked examples showing how to build out applications
+with the WebComponents library.
+
+
+
+
+
+        |- myProject
+        |  |
+        |  |- js
+        |  |
+        |  |- css
+        |  |
+        |  |- index.html
+        |
+        |
+        |- components
+        |  |
+        |  |- adminui
+        |
+
+
 
 - Copy the contents of the the *js* and *css* folders in this repository into your project's *js* and *css* 
 directories

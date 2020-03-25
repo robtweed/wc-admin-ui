@@ -30,92 +30,107 @@
 
 export function load() {
 
-  let componentName = 'adminui-content-card';
+  let componentName = 'adminui-form-textarea';
   let counter = -1;
   let id_prefix = componentName + '-';
 
-  class adminui_content_card extends HTMLElement {
+  customElements.define(componentName, class adminui_form_textarea extends HTMLElement {
     constructor() {
       super();
 
       counter++;
+      let id = id_prefix + counter;
 
       const html = `
-<div class="card shadow mb-4"></div>
+<div class="form-group">
+  <label for="${id}">Undefined Label</label>
+  <textarea class="form-control" id="${id}"></textarea>
+</div>
       `;
-
       this.html = `${html}`;
+    }
+
+    addClass(cls) {
+      this.rootElement.classList.add(cls);
+    }
+
+    removeClass(cls) {
+      this.rootElement.classList.remove(cls);
     }
 
     setState(state) {
       if (state.name) {
-        this.name = state.name
-      }
-      if (state.title) {
-        if (this.header) {
-          this.header.setState({title: state.title});
-        }
-      }
-      if (state.title_colour) {
-        if (this.header) {
-          this.header.setState({title_colour: state.title_colour});
-        }
-      }
-      if (state.text) {
-        if (this.body) {
-          this.body.setState({text: state.text});
-        }
+        this.name = state.name;
       }
       if (state.cls) {
         let _this = this;
         state.cls.split(' ').forEach(function(cls) {
-          _this.rootElement.classList.add(cls);
+          _this.addClass(cls);
         });
       }
-      if (state.hide) {
-        this.styles.display = 'none';
-        this.setStyles();
+      if (state.id) {
+        this.textareaTag.id = state.id;
+        this.labelTag.setAttribute('for', id);
       }
-      if (state.show) {
-        this.styles.display = '';
-        this.setStyles();
+      if (state.label === false) {
+        this.labelTag.parentNode.removeChild(this.labelTag);
       }
-      if (state.width) {
-        this.styles.width = state.width;
-        this.setStyles();
+      if (state.label) {
+        this.labelTag.textContent = state.label;
+      }
+      if (state.height) {
+        this.textareaTag.setAttribute('rows', state.height);
+      }
+      if (state.rows) {
+        this.textareaTag.setAttribute('rows', state.rows);
+      }
+      if (state.focus) {
+        this.textareaTag.focus();
+      }
+      if (typeof state.value !== 'undefined') {
+        this.textareaTag.textContent = state.value;
+        this.form.setFieldValue(this.name, state.value);
+      }
+      if (state.readonly) {
+        this.textareaTag.setAttribute('readonly', 'readonly');
+      }
+      if (state.readonly === false) {
+        this.textareaTag.removeAttribute('readonly');
+      }
+      if (state.row) {
+        this.rootElement.classList.add('row');
+        this.labelTag.className = 'col-sm-' + state.row + ' col-form-label';
+        let div = document.createElement('div');
+        div.className = 'col-sm-' + (12 - state.row);
+        this.rootElement.appendChild(div);
+        this.rootElement.removeChild(this.textareaTag);
+        div.appendChild(this.textareaTag);
       }
     }
 
-    setStyles() {
-      let style = '';
-      for (let name in this.styles) {
-        style = style + name + ':' + this.styles[name] + ';';
-      }
-      if (style !== '') this.rootElement.setAttribute('style', style);
-    }
-
-    show() {
-      this.setState({show: true});
-    }
-
-    hide() {
-      this.setState({hide: true});
+    onLoaded() {
+      this.form = this.getParentComponent({match: 'adminui-form'});
+      let _this = this;
+      this.fn = function(e) {
+        _this.form.setFieldValue(_this.name, e.target.value);
+      };
+      this.textareaTag.addEventListener('change', this.fn);
+      this.form.field[this.name] = this;
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('div')[0];
-      this.childrenTarget = this.rootElement;
-      this.name = id_prefix + counter;
-      this.styles = {};
+      this.textareaTag = this.rootElement.querySelector('textarea');
+      this.labelTag = this.rootElement.querySelector('label');
+      this.name = this.textareaTag.id;
     }
 
     disconnectedCallback() {
-      console.log('*** card component was removed!');
+      console.log('*** textarea component was removed!');
       if (this.onUnload) this.onUnload();
+      this.textareaTag.removeEventListener('change', this.fn);
     }
-  }
-
-  customElements.define(componentName, adminui_content_card);
+  });
 
 }

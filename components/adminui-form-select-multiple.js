@@ -24,17 +24,17 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 24 March 2020
+ 25 March 2020
 
 */
 
 export function load() {
 
-  let componentName = 'adminui-form-checkbox';
+  let componentName = 'adminui-form-select-multiple';
   let counter = -1;
   let id_prefix = componentName + '-';
 
-  customElements.define(componentName, class adminui_form_checkbox extends HTMLElement {
+  customElements.define(componentName, class adminui_form_select_multiple extends HTMLElement {
     constructor() {
       super();
 
@@ -42,9 +42,9 @@ export function load() {
       let id = id_prefix + counter;
 
       const html = `
-<div class="form-check">
-  <input class="form-check-input" type="checkbox" id="${id}">
-  <label class="form-check-label" for="${id}">Undefined Label</label>
+<div class="form-group">
+  <label for="${id}">Undefined Label</label>
+  <select multiple class="form-control" id="${id}">
 </div>
       `;
       this.html = `${html}`;
@@ -60,13 +60,7 @@ export function load() {
 
     setState(state) {
       if (state.name) {
-        // delete old form reference
-        let oldName = this.name;
-        this.setFormReference.call(this, state.name, this.value);
-        delete this.form.radios[oldName];
-
         this.name = state.name;
-        this.inputTag.setAttribute('name', state.name);
       }
       if (state.cls) {
         let _this = this;
@@ -76,7 +70,7 @@ export function load() {
       }
       if (state.id) {
         this.inputTag.id = state.id;
-        this.labelTag.setAttribute('for', state.id);
+        this.labelTag.setAttribute('for', id);
       }
       if (state.label === false) {
         this.labelTag.parentNode.removeChild(this.labelTag);
@@ -84,31 +78,59 @@ export function load() {
       if (state.label) {
         this.labelTag.textContent = state.label;
       }
+      if (state.options) {
+        let _this = this;
+        this.options = {};
+        this.selected = false;
+        // remove any existing options
+        let children = [...this.selectTag.childNodes];
+        children.forEach(function(child) {
+          child.parentNode.removeChild(child);
+        });
+        // create new options
+        state.options.forEach(function(option) {
+          let optionTag = document.createElement('option');
+          optionTag.value = option.value || option.text;
+          optionTag.text = option.text;
+          _this.options[option.value] = optionTag;
+          _this.selectTag.appendChild(optionTag);
+        });
+      }
       if (state.focus) {
-        this.inputTag.focus();
+        this.selectTag.focus();
       }
-      if (state.checked) {
-        this.inputTag.setAttribute('checked', 'checked');
-      }
-      if (state.checked === false) {
-        this.inputTag.removeAttribute('checked');
-      }
-      if (state.value) {
-        this.inputTag.value = state.value;
-        this.setFormReference.call(this, this.name, state.value);
-        this.form.setFieldValue(this.name, state.value, false);
+      if (state.selectedValues) {
+        let _this = this;
+        if (this.form) {
+          let fieldValues = this.form.fieldValues[this.name];
+          for (let value in fieldValues) {
+            fieldValues[value] = false;
+            let optionTag = _this.options[value];
+            optionTag.removeAttribute('selected');
+            this.form.setFieldValue(this.name, value, false);
+          }
+          state.selectedValues.forEach(function(value) {
+            fieldValues[value] = true;
+            let optionTag = _this.options[value];
+            optionTag.setAttribute('selected', 'selected');
+            _this.form.setFieldValue(_this.name, value, true);
+          });
+        }
       }
       if (state.readonly) {
-        this.inputTag.setAttribute('disabled', 'disabled');
+        this.selectTag.setAttribute('disabled', 'disabled');
       }
       if (state.readonly === false) {
-        this.inputTag.removeAttribute('disabled');
+        this.selectTag.removeAttribute('disabled');
       }
-      if (state.inline) {
-        this.rootElement.classList.add('form-check-inline');
-      }
-      if (state.inline === false) {
-        this.rootElement.classList.remove('form-check-inline');
+      if (state.row) {
+        this.rootElement.classList.add('row');
+        this.labelTag.className = 'col-sm-' + state.row + ' col-form-label';
+        let div = document.createElement('div');
+        div.className = 'col-sm-' + (12 - state.row);
+        this.rootElement.appendChild(div);
+        this.rootElement.removeChild(this.selectTag);
+        div.appendChild(this.selectTag);
       }
     }
 
@@ -116,50 +138,34 @@ export function load() {
       this.setState({value: value});
     }
 
-    setFormReference(name, value) {
-      if (!this.form) this.form = this.getParentComponent({match: 'adminui-form'});
-      if (!this.form.checks) {
-        this.form.checks = {};
-      }
-      if (name && !this.form.checks[name]) {
-        this.form.checks[name] = {};
-      }
-      if (value) {
-        this.form.checks[name][value] = this;
-      }
-    }
-
     onLoaded() {
       this.form = this.getParentComponent({match: 'adminui-form'});
-      this.setFormReference.call(this, this.name, this.value);
-      let checkboxGroup = this.getParentComponent('adminui-form-checkbox-group');
+      this.form.fieldValues[this.name] = {};
       let _this = this;
       this.fn = function(e) {
-        _this.form.setFieldValue(_this.name, e.target.value, e.target.checked);
+        let options = [...e.target.options];
+        options.forEach(function(option) {
+          _this.form.setFieldValue(_this.name, option.value, option.selected);
+        });
       };
-      this.inputTag.addEventListener('change', this.fn);
-      if (checkboxGroup) {
-        this.form.field[this.name] = checkboxGroup;
-        if (this.inputTag.value) checkboxGroup.checks[this.inputTag.value] = this;
-      }
-      else {
-        this.form.field[this.name] = this;
-      }
+      this.selectTag.addEventListener('change', this.fn);
+      this.form.field[this.name] = this;
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
       this.rootElement = this.getElementsByTagName('div')[0];
-      this.inputTag = this.rootElement.querySelector('input');
+      this.selectTag = this.rootElement.querySelector('select');
       this.labelTag = this.rootElement.querySelector('label');
-      this.name = this.inputTag.id;
-      this.type = 'checkbox';
+      this.name = this.selectTag.id;
+      this.options = {};
+      this.type = 'select-multiple';
     }
 
     disconnectedCallback() {
       console.log('*** form component was removed!');
       if (this.onUnload) this.onUnload();
-      this.inputTag.removeEventListener('change', this.fn);
+      this.selectTag.removeEventListener('change', this.fn);
     }
 
   });

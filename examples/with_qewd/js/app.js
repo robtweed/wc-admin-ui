@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteConfirmDisplayColumn: 0
       },
       detail: {
+        cardWidth: '500px',
         newRecordTitle: 'Enter New User',
         titleColour: 'info',
         btnIcon: 'user-cog',
@@ -148,6 +149,48 @@ document.addEventListener('DOMContentLoaded', function() {
               {text: 'Public', value: 'public'},
               {text: 'Not Specified', value: 'x'}
             ]
+          },
+          {
+            name: 'roles',
+            data_property: 'roles',
+            label: 'Roles',
+            type: 'checkboxes',
+            checkboxes: [
+              {text: 'Doctor', value: 'doctor'},
+              {text: 'Patient', value: 'patient'},
+              {text: 'Carer', value: 'carer'},
+              {text: 'Consultant', value: 'consultant'}
+            ]
+          },
+          {
+            name: 'age',
+            data_property: 'age',
+            label: 'Age',
+            type: 'range',
+            labelWidth: 3,
+            min: 0,
+            max: 100,
+            marker: true
+          },
+          {
+            name: 'prevEmp',
+            data_property: 'prevEmp',
+            label: 'Previous Employers',
+            type: 'multiselect',
+            options: [
+              {text: 'NHS', value: 'nhs'},
+              {text: 'Private Hospital', value: 'private'},
+              {text: 'Community', value: 'community'},
+              {text: 'GP Practice', value: 'gp'}
+            ]
+          },
+          {
+            name: 'comments',
+            data_property: 'comments',
+            label: 'Comments',
+            type: 'textarea',
+            labelWidth: 4,
+            height: 6
           }
         ]
       },

@@ -24,17 +24,17 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 23 March 2020
+ 24 March 2020
 
 */
 
 export function load() {
 
-  let componentName = 'adminui-form-radio-group';
+  let componentName = 'adminui-form-checkbox-group';
   let counter = -1;
   let id_prefix = componentName + '-';
 
-  customElements.define(componentName, class adminui_form_radio_group extends HTMLElement {
+  customElements.define(componentName, class adminui_form_checkbox_group extends HTMLElement {
     constructor() {
       super();
 
@@ -57,11 +57,16 @@ export function load() {
 
     setState(state) {
       if (state.name) {
+        let oldName = this.name;
+        if (this.form) {
+          delete this.form.fieldValues[oldName];
+          this.form.fieldValues[state.name] = {};
+        }
         this.name = state.name;
-        // need to spin through child radio buttons and update those too
-        let radios = [...this.getElementsByTagName('adminui-form-radio')];
-        radios.forEach(function(radio) {
-          radio.setState({name: state.name});
+        // need to spin through child checkboxes and update those too
+        let checks = [...this.getElementsByTagName('adminui-form-checkbox')];
+        checks.forEach(function(checkbox) {
+          checkbox.setState({name: state.name});
         });
       }
       if (typeof state.label !== 'undefined') {
@@ -73,49 +78,62 @@ export function load() {
           _this.rootElement.addClass(cls);
         });
       }
-      if (state.radios) {
+      if (state.checkboxes) {
         let _this = this;
 
-        function addRadio(no) {
-          if (no === state.radios.length) return;
-          var radio = state.radios[no];
+        function addCheckbox(no) {
+          if (no === state.checkboxes.length) return;
+          let checkbox = state.checkboxes[no];
 
-          var assembly = {
-            componentName: 'adminui-form-radio',
+          let assembly = {
+            componentName: 'adminui-form-checkbox',
             state: {
               id: _this.name + '-' + no,
               name: _this.name,
-              value: radio.value,
-              label: radio.text
+              value: checkbox.value,
+              label: checkbox.text
             }
           };
           _this.loadGroup(assembly, _this.childrenTarget, _this.context, function() {
-            addRadio(no + 1);
+            addCheckbox(no + 1);
           });
         }
 
-        addRadio(0);
+        addCheckbox(0);
       }
       if (state.readonly) {
-        let radios = [...this.getElementsByTagName('adminui-form-radio')];
-        radios.forEach(function(radio) {
-          radio.setState({readonly: true});
+        let checks = [...this.getElementsByTagName('adminui-form-checkbox')];
+        checks.forEach(function(checkbox) {
+          checkbox.setState({readonly: true});
         });
       }
       if (state.readonly === false) {
-        let radios = [...this.getElementsByTagName('adminui-form-radio')];
-        radios.forEach(function(radio) {
-          radio.setState({readonly: false});
+        let checks = [...this.getElementsByTagName('adminui-form-checkbox')];
+        checks.forEach(function(checkbox) {
+          checkbox.setState({readonly: false});
         });
       }
-      if (state.selectedValue) {
-        let radio = this.radios[state.selectedValue];
-        radio.setState({checked: true});
+      if (state.selectedValues) {
+        let _this = this;
+        if (this.form) {
+          let fieldValues = this.form.fieldValues[this.name];
+          for (let value in fieldValues) {
+            fieldValues[value] = false;
+            let checkbox = _this.checks[value];
+            checkbox.setState({checked: false});
+          }
+          state.selectedValues.forEach(function(value) {
+            fieldValues[value] = true;
+            let checkbox = _this.checks[value];
+            checkbox.setState({checked: true});
+          });
+        }
       }
     }
 
     onLoaded() {
       this.form = this.getParentComponent({match: 'adminui-form'});
+      this.form.fieldValues[this.name] = {};
     }
 
     connectedCallback() {
@@ -123,12 +141,12 @@ export function load() {
       this.rootElement = this.getElementsByTagName('div')[0];
       this.childrenTarget = this.rootElement;
       this.name = id_prefix + counter;
-      this.type = 'radio-group';
-      this.radios = {};
+      this.type = 'checkbox-group';
+      this.checks = {};
     }
 
     disconnectedCallback() {
-      console.log('*** form component was removed!');
+      console.log('*** checkbox group component was removed!');
       if (this.onUnload) this.onUnload();
     }
 

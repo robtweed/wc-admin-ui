@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 02 March 2020
+ 25 March 2020
 
 */
 
@@ -62,9 +62,15 @@ export function load() {
       }
     }
 
-    setFieldValue(name, value) {
-      this.fieldValues[name] = value;
-      //console.log('*** ' + name + ' field set to ' + value);
+    setFieldValue(name, value, checked) {
+      if (typeof checked !== 'undefined') {
+        this.fieldValues[name][value] = checked;
+        //console.log(this.fieldValues);
+      }
+      else {
+        this.fieldValues[name] = value;
+        //console.log('*** ' + name + ' field set to ' + value);
+      }
     }
 
     removeField(name) {

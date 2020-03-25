@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 23 March 2020
+ 25 March 2020
 
 */
 
@@ -107,7 +107,8 @@ export function crud_assembly(QEWD, state) {
             componentName: 'adminui-content-card',
             state: {
               name: state.name + '-details-card',
-              hide: true
+              hide: true,
+              width: state.detail.cardWidth || '400px'
             },
             children: [
               {
@@ -272,8 +273,25 @@ export function crud_assembly(QEWD, state) {
             return;
           }
 
-          if (field.type === 'select') componentName = 'adminui-form-select';
+          if (field.type === 'checkboxes') {
+            assembly = {
+              componentName: 'adminui-form-checkbox-group',
+              state: {
+                name: field.name,
+                label: field.label,
+                checkboxes: field.checkboxes
+              }
+            };
+            form.loadGroup(assembly, form, form.context, function() {
+              addFormField(no + 1);
+            });
+            return;
+          }
 
+          if (field.type === 'range') componentName = 'adminui-form-range';
+          if (field.type === 'select') componentName = 'adminui-form-select';
+          if (field.type === 'multiselect') componentName = 'adminui-form-select-multiple';
+          if (field.type === 'textarea') componentName = 'adminui-form-textarea';
           assembly = {
             componentName: componentName,
             state: {
@@ -284,9 +302,21 @@ export function crud_assembly(QEWD, state) {
               row: field.labelWidth
             }
           };
-          if (field.type === 'select') {
+          if (field.type === 'select' || field.type === 'multiselect') {
             assembly.hooks = ['displayOptions'];
             assembly.state.options = field.options;
+          }
+
+          if (field.type === 'range') {
+            assembly.state.min = field.min;
+            assembly.state.max = field.max;
+            assembly.state.step = field.step;
+            assembly.state.marker = field.marker;
+          }
+
+          if (field.type === 'textarea') {
+            assembly.state.height = field.height;
+            assembly.state.rows = field.rows;
           }
 
           form.loadGroup(assembly, form, form.context, function() {
@@ -298,6 +328,12 @@ export function crud_assembly(QEWD, state) {
     },
 
     'adminui-form-select': {
+      displayOptions: function(state) {
+        this.setState({options: state.options});
+      }
+    },
+
+    'adminui-form-select-multiple': {
       displayOptions: function(state) {
         this.setState({options: state.options});
       }
@@ -453,7 +489,17 @@ export function crud_assembly(QEWD, state) {
             id: form.recordId
           };
           for (let name in form.field) {
-            params[formFieldPropertyNames[name]] = form.fieldValues[name];
+            let value = form.fieldValues[name];
+            if (typeof value === 'object') {
+              let arr = [];
+              for (let xname in value) {
+                if (value[xname]) arr.push(xname);
+              }
+              params[formFieldPropertyNames[name]] = arr;
+            }
+            else {
+              params[formFieldPropertyNames[name]] = value;
+            }
           }
           QEWD.send({
             type: state.update.qewd.save + 'x',
@@ -506,8 +552,8 @@ export function crud_assembly(QEWD, state) {
               title.setState({title: record[state.detail.title_data_property]});
               title.showButton();
 
-              for (let name in record) {
-                if (formFields[name]) {
+              for (let name in formFields) {
+
                   let field = form.field[name];
 
                   if (field.type === 'radio-group') {
@@ -515,13 +561,28 @@ export function crud_assembly(QEWD, state) {
                       selectedValue: record[name],
                       readonly: true
                     });
-                    return;
                   }
-                  field.setState({
-                    value: record[name],
-                    readonly: true
-                  });
-                }
+                  else if (field.type === 'checkbox-group') {
+                    field.setState({
+                      selectedValues: record[name],
+                      readonly: true
+                    });
+                  }
+                  else if (field.type === 'select-multiple') {
+                    field.setState({
+                      selectedValues: record[name],
+                      readonly: true
+                    });
+                  }
+                  else {
+                    if (field.type === 'range' && !record[name]) {
+                      record[name] = field.min;
+                    }
+                    field.setState({
+                      value: record[name],
+                      readonly: true
+                    });
+                  }
               }
             }
           });
@@ -568,12 +629,19 @@ export function crud_assembly(QEWD, state) {
                 selectedValue: '',
                 readonly: false
               });
-              return;
             }
-            field.setState({
-              value: '',
-              readonly: false
-            });
+            if (field.type === 'checkbox-group') {
+              field.setState({
+                selectedValues: [],
+                readonly: false
+              });
+            }
+            else {
+              field.setState({
+                value: '',
+                readonly: false
+              });
+            }
           }
         };
         this.addHandler(fn, this.button);
