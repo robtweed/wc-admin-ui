@@ -21,9 +21,77 @@ using the *SB Admin 2 WebComponents in this repository.  Take the
 [comprehensive tutorial](https://github.com/robtweed/mg-webComponents).
 
 
-# Setting up a project
+# Setting up the Environment
 
-## Install the Components from the Repository
+## Users of the QEWD Docker Container
+
+If you are using the latest versions of the QEWD Docker Container
+[for Linux](https://hub.docker.com/repository/docker/rtweed/qewd-server) or for the
+[Raspberry Pi](https://hub.docker.com/repository/docker/rtweed/qewd-server-rpi),
+then everything you need is already installed under its Web Server's root
+directory (*/opt/qewd/mapped/www).
+
+
+You'll find this repository's WebComponent Module Library here:
+
+        /opt/qewd/mapped/www
+            |
+            |- components
+            |  |
+            |  |- adminui
+            |  |   |
+            |  |   |- examples
+            |  |   |
+            |  |   |- js
+            |  |   |
+            |  |   |- css
+            |  |   |
+            |  |   |- components
+
+
+The *mg-webComponents* module required for the WebComponent Module library is already installed here:
+
+        /opt/qewd/mapped/www
+            |
+            |- mg-webComponents.js
+
+Even if you are using the Dockerised QEWD Container, it is worth reading the following
+instructions below for manually setting up the environment, as they will help your understanding
+of what has already been installed within the Container and why.
+
+Otherwise, you should now skip forwards [to here](#setting-up-a-project)
+
+
+## Setting Up Your Own System Manually
+
+If you're using your own platform, or a non-Dockerised version of QEWD, you'll need to set up
+the environment manually.  Follow the steps below.
+
+### Install the *mg-webComponents* Module
+
+The *wc-admin-ui* Library of WebComponent Modules is dependent on the *mg-webComponents* Module
+being available on your Web Server.
+
+You can fetch the *mg-webComponents* module using either:
+
+        git clone https://github.com/robtweed/mg-webComponents
+
+or:
+
+        npm install mg-webcomponents
+
+This tutorial assumes that you put the repository's *mg-webComponents.js* file in your Web Server's root path.
+If you place in another Web Server path, you will need to modify the Tutorial examples accordingly.
+
+So, for example, if your Web Server's root path is at /opt/nginx/www:
+
+        /opt/nginx/www
+            |
+            |- mg-webComponents.js
+
+
+
+### Install the Admin UI Components from this Repository
 
 - Clone the repository to a folder path named "components/adminui" under your Web Server root directory (eg *~/qewd/www*), eg:
 
@@ -49,7 +117,7 @@ Under your Web Server's root directory you should therefore now have:
         |  |   |- components
 
 
-## Sub-Folders under */components/adminui*
+### Sub-Folders under */components/adminui*
 
 The *js* and *css* sub-folders contain all the JavaScript and CSS resources respectively
 for Bootstrap 4 etc.  These are loaded automatically by the *adminui* root component.
@@ -62,7 +130,12 @@ you'll see that all the files are prefixed *adminui-*.  *adminui* is therefore t
 WebComponent Modules.
 
 
-## Your Project Folder Structure
+# Setting Up A Project
+
+## Folder Structure
+
+If you want to create an application using the SB Admin 2 UI WebComponent Library, you should
+first create the appropriate folders.
 
 Under your Web Server's root directory, create the following folder and file structure.
 
@@ -93,7 +166,12 @@ For example, if your application is *myTestApp*, you'll create:
 
 ## The *mg-webComponents* Stack
 
-In the *mg-webComponents* tutorial, you'll have learnt that there are four layers to an application:
+Before using this repository's library of SB Admin 2 Themed WebComponent Modules, it is recommended
+that you take the basic 
+[*mg-webComponents* tutorial](https://github.com/robtweed/mg-webComponents/blob/master/TUTORIAL.md).
+
+In that *mg-webComponents* tutorial,
+ you'll have learnt that there are four layers to an application:
 
 - the bottom-level library of WebComponent Modules.  This is what you've installed from this repository
 - your WebComponent Assembly Module(s);  We'll create some examples in this tutorial.
@@ -124,7 +202,7 @@ The contents of these two files will depend on what we're wanting to actually do
 Let's start with a very basic application and we'll progressively build it out using the SB Admin 2 UI WebComponents.
 
 
-# The Basic SuperStructure.
+# The SB Admin 2 Theme SuperStructure.
 
 As you'll have seen from the [SB Admin 2 Theme](https://startbootstrap.com/themes/sb-admin-2/) examples, it uses
 Bootstrap 4, and provides a UI with the following basic superstructure:
@@ -145,9 +223,13 @@ skeleton of the UI design and should always be the starting point for any SB Adm
 
 Let's start by just creating an application that renders the basic skeleton structure and nothing else.
 
+I'll assume you've created a set of project folders as described earlier. It's up to you what you name
+your project/application, but I'll assume it's named *myTestApp*.
+
 ## Create your *app.js* file
 
 Paste the following contents into your *app.js* file:
+
 
         import {webComponents} from '../../mg-webComponents.js';
         
@@ -179,15 +261,18 @@ You should see the empty panels of the SB Admin 2 UI displayed, albeit without a
 
 ## The Boostrap 4 JavaScript and CSS Resources
 
-Try opening up the browser's JavaScript Console / Developers Tools panel and click the Network tab, then reload the
-web page.  You'll see that it has downloaded all the JavaScript and CSS files needed for Bootstrap 4, jQuery etc.
-That has been handled as part of the logic within the *adminui-root* component (actually within its *onLoaded()* method,
-which you might want to inspect).
+Try opening up the browser's JavaScript Console / Developer Tools panel and click the Network tab, then reload the
+web page.  You'll see that it downloadeds all the JavaScript and CSS files needed for Bootstrap 4, jQuery etc.
+That has been handled as part of the logic within the
+ [*adminui-root* WebComponent](https://github.com/robtweed/wc-admin-ui/blob/master/components/adminui-root.js).
+See its *onLoaded()* method.
 
 So, by using the *adminui-root* WebComponent, all the necessary resources are loaded ready for use by all the
-other *adminui* WebComponents.
+other *adminui* WebComponents in the Library.
 
-Note that all the other *adminui* WebComponents rely on the Bootstrap 4 stylesheets, so none of them use *ShadowDOM*.
+Note that all the other *adminui* WebComponents rely on the Bootstrap 4 stylesheets, so none of them use *ShadowDOM*,
+allowing those styles to "leak through" automatically.
+
 
 ## The *adminui-root* WebComponent Properties
 
