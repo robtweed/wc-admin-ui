@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 25 March 2020
+ 27 March 2020
 
 */
 
@@ -457,10 +457,13 @@ export function crud_assembly(QEWD, state) {
               id: _this.recordId
             }
           }, function(responseObj) {
-            if (!responseObj.message.error) {
+            let modalRoot = _this.getComponentByName('adminui-modal-root', 'confirm-delete');
+            modalRoot.hide();
+            if (responseObj.message.error) {
+              toastr.error(responseObj.message.error);
+            }
+            else {
               toastr.info('Record deleted');
-              let modalRoot = _this.getComponentByName('adminui-modal-root', 'confirm-delete');
-              modalRoot.hide();
               let table = _this.getComponentByName('adminui-datatables', state.name);
               let target = table.getParentComponent('adminui-content-card-body');
               table.datatable.destroy();
@@ -502,7 +505,7 @@ export function crud_assembly(QEWD, state) {
             }
           }
           QEWD.send({
-            type: state.update.qewd.save + 'x',
+            type: state.update.qewd.save,
             params: params
           }, function(responseObj) {
             if (responseObj.message.error) {
