@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 March 2020
+ 28 March 2020
 
 */
 
@@ -104,6 +104,13 @@ export function load() {
         // make sure the tooltip is removed if the component is unloaded
         this.registerUnloadMethod(removeTooltip);
       }
+      if (state.hideButton) {
+        this.hideButton();
+      }
+      if (state.disableButton) {
+        this.hideButton();
+        this.button.disabled = true;
+      }
     }
 
     hideButton() {
@@ -111,7 +118,9 @@ export function load() {
     }
 
     showButton() {
-      $('#' + this.button.id).parent().show();
+      if (!this.button.disabled) {
+        $('#' + this.button.id).parent().show();
+      }
     }
 
     connectedCallback() {
@@ -122,7 +131,7 @@ export function load() {
     }
 
     disconnectedCallback() {
-      console.log('*** card-button-title component was removed!');
+      //console.log('*** card-button-title component was removed!');
       if (this.onUnload) this.onUnload();
     }
   }

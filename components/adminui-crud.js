@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 27 March 2020
+ 31 March 2020
 
 */
 
@@ -83,7 +83,8 @@ export function crud_assembly(QEWD, state) {
                       title_colour: state.summary.titleColour,
                       icon: state.summary.btnIcon,
                       buttonColour: state.summary.btnColour,
-                      tooltip: state.summary.btnTooltip
+                      tooltip: state.summary.btnTooltip,
+                      hideButton: state.summary.disableAdd
                     },
                     hooks: ['createNewRecord']
                   }
@@ -121,7 +122,8 @@ export function crud_assembly(QEWD, state) {
                       title_colour: state.detail.titleColour,
                       icon: state.detail.btnIcon,
                       buttonColour: state.detail.btnColour,
-                      tooltip: state.detail.btnTooltip || 'Edit record'
+                      tooltip: state.detail.btnTooltip || 'Edit record',
+                      disableButton: state.detail.disableEdit
                     },
                     hooks: ['updateRecord']
                   }
@@ -274,12 +276,24 @@ export function crud_assembly(QEWD, state) {
           }
 
           if (field.type === 'checkboxes') {
+            let checkboxes = [];
+            field.checkboxes.forEach(function(checkbox) {
+              if (typeof checkbox.if === 'function') {
+                if (!checkbox.if.call(form)) {
+                  return;
+                }
+              }
+              checkboxes.push({
+                text: checkbox.text,
+                value: checkbox.value
+              });
+            });
             assembly = {
               componentName: 'adminui-form-checkbox-group',
               state: {
                 name: field.name,
                 label: field.label,
-                checkboxes: field.checkboxes
+                checkboxes: checkboxes
               }
             };
             form.loadGroup(assembly, form, form.context, function() {
@@ -298,6 +312,7 @@ export function crud_assembly(QEWD, state) {
               name: field.name,
               type: field.type,
               label: field.label,
+              placeholder: field.placeholder,
               readonly: true,
               row: field.labelWidth
             }
@@ -350,8 +365,10 @@ export function crud_assembly(QEWD, state) {
           }
         }, function(responseObj) {
           if (!responseObj.message.error) {
+            table.data = {};
             let data = [];
             responseObj.message.summary.forEach(function(record) {
+              table.data[record.id] = record;
               let row = [];
               state.summary.data_properties.forEach(function(property) {
                 row.push(record[property]);
@@ -363,6 +380,8 @@ export function crud_assembly(QEWD, state) {
               data.push(row);
             });
             let columns = [];
+            let noOfCols = state.summary.headers.length;
+            
             state.summary.headers.forEach(function(header) {
               columns.push({title: header});
             });
@@ -378,23 +397,33 @@ export function crud_assembly(QEWD, state) {
 
             table.datatable.rows().every(function(index, element) {
               let row = $(this.node());
-              let td = row.find('td').eq(2)[0];
+              let td = row.find('td').eq(noOfCols - 1)[0];
               let id = td.textContent;
+              table.row = table.data[id];
               td.id = 'record-' + id;
               td.textContent = '';
-              td = row.find('td').eq(3)[0];
-              td.id = 'delete-' + id;
-              let confirmCol = state.summary.deleteConfirmDisplayColumn || 0;
-              let name_td = row.find('td').eq(confirmCol)[0];
-              td.setAttribute('data-confirm', name_td.textContent);
+              if (state.summary.enableDelete) {
+                td = row.find('td').eq(noOfCols)[0];
+                td.id = 'delete-' + id;
+                let confirmTextFn = state.summary.deleteConfirmText;
+                let confirmText;
+                if (typeof confirmTextFn === 'function') {
+                  confirmText = confirmTextFn.call(table);
+                }
+                else {
+                  let name_td = row.find('td').eq(0)[0];
+                  confirmText = name_td.textContent;
+                }
+                td.setAttribute('data-confirm', confirmText);
+              }
             });
 
             table.datatable.rows({page: 'current'}).every(function(index, element) {
               let row = $(this.node());
-              let td = row.find('td').eq(2)[0];
+              let td = row.find('td').eq(noOfCols - 1)[0];
               table.loadGroup(showUserBtn, td, table.context);
               if (state.summary.enableDelete) {
-                td = row.find('td').eq(3)[0];
+                td = row.find('td').eq(noOfCols)[0];
                 table.loadGroup(deleteBtn, td, table.context);
               }
             });
@@ -549,10 +578,17 @@ export function crud_assembly(QEWD, state) {
             if (!responseObj.message.error) {
               card.show();
               card.footer.hide();
-              let record = responseObj.message.record;
+              _this.record = responseObj.message.record;
+              let title_value;
+              if (typeof state.detail.title_data_property === 'function') {
+                title_value = state.detail.title_data_property.call(_this);
+              }
+              else {
+                title_value = _this.record[state.detail.title_data_property];
+              }
 
               let title = card.querySelector('adminui-content-card-button-title');
-              title.setState({title: record[state.detail.title_data_property]});
+              title.setState({title: title_value});
               title.showButton();
 
               for (let name in formFields) {
@@ -561,28 +597,28 @@ export function crud_assembly(QEWD, state) {
 
                   if (field.type === 'radio-group') {
                     field.setState({
-                      selectedValue: record[name],
+                      selectedValue: _this.record[name],
                       readonly: true
                     });
                   }
                   else if (field.type === 'checkbox-group') {
                     field.setState({
-                      selectedValues: record[name],
+                      selectedValues: _this.record[name],
                       readonly: true
                     });
                   }
                   else if (field.type === 'select-multiple') {
                     field.setState({
-                      selectedValues: record[name],
+                      selectedValues: _this.record[name],
                       readonly: true
                     });
                   }
                   else {
-                    if (field.type === 'range' && !record[name]) {
-                      record[name] = field.min;
+                    if (field.type === 'range' && !_this.record[name]) {
+                      _this.record[name] = field.min;
                     }
                     field.setState({
-                      value: record[name],
+                      value: _this.record[name],
                       readonly: true
                     });
                   }
@@ -652,6 +688,8 @@ export function crud_assembly(QEWD, state) {
     }
   };
 
+
   return {component, hooks};
+
 };
 

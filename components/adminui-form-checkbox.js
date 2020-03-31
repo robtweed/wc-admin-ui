@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 24 March 2020
+ 28 March 2020
 
 */
 
@@ -63,7 +63,7 @@ export function load() {
         // delete old form reference
         let oldName = this.name;
         this.setFormReference.call(this, state.name, this.value);
-        delete this.form.radios[oldName];
+        delete this.form.checks[oldName];
 
         this.name = state.name;
         this.inputTag.setAttribute('name', state.name);

@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 25 March 2020
+ 30 March 2020
 
 */
 
@@ -64,8 +64,10 @@ export function load() {
 
     setFieldValue(name, value, checked) {
       if (typeof checked !== 'undefined') {
-        this.fieldValues[name][value] = checked;
-        //console.log(this.fieldValues);
+        if (this.fieldValues[name]) {
+          this.fieldValues[name][value] = checked;
+          //console.log(this.fieldValues);
+        }
       }
       else {
         this.fieldValues[name] = value;
