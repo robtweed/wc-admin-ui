@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 31 March 2020
+ 2 April 2020
 
 */
 
@@ -38,7 +38,10 @@ export function crud_assembly(QEWD, state) {
   state.update = state.update || {};
 
   state.summary.headers = state.summary.headers || [];
-  state.summary.headers.push('Select');
+  state.summary.data_properties = state.summary.data_properties || [];
+  if (state.summary.headers.length === state.summary.data_properties.length) {
+    state.summary.headers.push('Select');
+  };
 
   let formFields = {};
   let formFieldPropertyNames = {};
@@ -171,6 +174,7 @@ export function crud_assembly(QEWD, state) {
   let showUserBtn = {
     componentName: 'adminui-button',
     state: {
+      assemblyName: state.assemblyName,
       icon: state.summary.rowBtnIcon,
       colour: state.summary.rowBtnColour
     },
@@ -356,14 +360,22 @@ export function crud_assembly(QEWD, state) {
 
     'adminui-datatables': {
 
-      retrieveRecordSummary: function() {
+      retrieveRecordSummary: async function() {
         let table = this;
+        /*
         QEWD.send({
           type: state.summary.qewd.getSummary,
           params: {
             properties: state.summary.data_properties
           }
         }, function(responseObj) {
+        */
+        let responseObj = await QEWD.reply({
+          type: state.summary.qewd.getSummary,
+          params: {
+            properties: state.summary.data_properties
+          }
+        });
           if (!responseObj.message.error) {
             table.data = {};
             let data = [];
@@ -448,7 +460,7 @@ export function crud_assembly(QEWD, state) {
               });
             });
           }
-        });
+        //});
       }
     },
 
@@ -478,14 +490,22 @@ export function crud_assembly(QEWD, state) {
 
       delete: function() {
         let _this = this;
-        let fn = function() {
+        let fn = async function() {
           let id = _this.parentNode.id.split('delete-')[1];
+          /*
           QEWD.send({
             type: state.summary.qewd.delete,
             params: {
               id: _this.recordId
             }
           }, function(responseObj) {
+          */
+          let responseObj = await QEWD.reply({
+            type: state.summary.qewd.delete,
+            params: {
+              id: _this.recordId
+            }
+           });
             let modalRoot = _this.getComponentByName('adminui-modal-root', 'confirm-delete');
             modalRoot.hide();
             if (responseObj.message.error) {
@@ -506,14 +526,14 @@ export function crud_assembly(QEWD, state) {
               };
               _this.loadGroup(assembly, target, _this.context);
             }
-          });
+          //});
         };
         this.addHandler(fn);
       },
 
       save: function() {
         let _this = this;
-        let fn = function() {
+        let fn = async function() {
           let form = _this.getComponentByName('adminui-form', state.name);
           let field;
           let value;
@@ -533,10 +553,16 @@ export function crud_assembly(QEWD, state) {
               params[formFieldPropertyNames[name]] = value;
             }
           }
+          /*
           QEWD.send({
             type: state.update.qewd.save,
             params: params
           }, function(responseObj) {
+          */
+          let responseObj = await QEWD.reply({
+            type: state.update.qewd.save,
+            params: params
+          });
             if (responseObj.message.error) {
               toastr.error(responseObj.message.error);
             }
@@ -557,7 +583,7 @@ export function crud_assembly(QEWD, state) {
               let card = _this.getComponentByName('adminui-content-card', state.name + '-details-card');
               card.hide();
             }
-          });
+          //});
         };
         this.addHandler(fn);
       },
@@ -567,14 +593,22 @@ export function crud_assembly(QEWD, state) {
         let id = this.parentNode.id.split('record-')[1];
         let card = this.getComponentByName('adminui-content-card', state.name + '-details-card');
         let form = this.getComponentByName('adminui-form', state.name);
-        let fn = function() {
+        let fn = async function() {
           form.recordId = id;
+          /*
           QEWD.send({
             type: state.summary.qewd.getDetail,
             params: {
               id: id
             }
           }, function(responseObj) {
+          */
+          let responseObj = await QEWD.reply({
+            type: state.summary.qewd.getDetail,
+            params: {
+              id: id
+            }
+          });
             if (!responseObj.message.error) {
               card.show();
               card.footer.hide();
@@ -591,8 +625,8 @@ export function crud_assembly(QEWD, state) {
               title.setState({title: title_value});
               title.showButton();
 
-              for (let name in formFields) {
-
+              for (let fname in formFields) {
+                  let name = formFields[fname].name;
                   let field = form.field[name];
 
                   if (field.type === 'radio-group') {
@@ -624,7 +658,7 @@ export function crud_assembly(QEWD, state) {
                   }
               }
             }
-          });
+          //});
         };
         this.addHandler(fn, this.rootElement);
       }

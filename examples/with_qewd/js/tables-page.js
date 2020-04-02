@@ -41,12 +41,12 @@ export function define_tables_page(QEWD) {
 
   let hooks = {
     'adminui-datatables': {
-      getTableData: function() {
+      getTableData: async function() {
         let _this = this;
-        QEWD.send({
+        let responseObj = await QEWD.reply({
           type: 'getTableData',
           ref: this.name
-        }, function(responseObj) {
+        });
           let obj = responseObj.message.data;
           _this.render(obj);
  
@@ -68,7 +68,7 @@ export function define_tables_page(QEWD) {
             //cell.draw();
           };
 
-        });
+        //});
       }
     }
   };

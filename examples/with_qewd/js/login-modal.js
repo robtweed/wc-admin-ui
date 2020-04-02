@@ -80,22 +80,21 @@ export function define_login_modal(QEWD) {
 
         modal.addHandler(kpfn, 'keypress');
 
-        let fn = function() {
+        let fn = async function() {
           let form = _this.getComponentByName('adminui-form', 'loginForm');
-          QEWD.send({
+          let responseObj = await QEWD.reply({
             type: 'login',
             params: form.fieldValues
-          }, function(responseObj) {
-            if (responseObj.message.error) {
-              toastr.error('Invalid login attempt');
-            }
-            else {
-              let modal = _this.getComponentByName('adminui-modal-root', 'modal-login');
-              modal.hide();
-              modal.remove();
-              _this.context.loadMainView();
-            }
           });
+          if (responseObj.message.error) {
+            toastr.error('Invalid login attempt');
+          }
+          else {
+            let modal = _this.getComponentByName('adminui-modal-root', 'modal-login');
+            modal.hide();
+            modal.remove();
+            _this.context.loadMainView();
+          }
         };
         this.addHandler(fn);
       }
