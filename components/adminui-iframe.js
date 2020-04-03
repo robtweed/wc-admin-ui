@@ -24,83 +24,63 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 3 April 2020
+ 1 April 2020
 
 */
 
 export function load() {
 
-  let componentName = 'adminui-modal-root';
-  let id_prefix = componentName + '-';
+  let componentName = 'adminui-iframe';
   let counter = -1;
-  let labelId;
+  let id_prefix = componentName + '-';
 
-  class adminui_modal_root extends HTMLElement {
+  customElements.define(componentName, class adminui_iframe extends HTMLElement {
     constructor() {
       super();
 
       counter++;
       let id = id_prefix + counter;
-      labelId = id_prefix + 'Label' + counter;
 
       const html = `
-<div class="modal fade" id="${id}" tabindex="-1" role="dialog" aria-labelledby="${labelId}" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content"></div>
-  </div>
-</div>
+<iframe id="${id}" height="50%" width="100%"></iframe>
       `;
+
       this.html = `${html}`;
     }
 
     setState(state) {
+      if (state.content) {
+        this.rootElement.textContent = state.content;
+      }
       if (state.name) {
         this.name = state.name;
       }
-      if (state.static) {
-        this.rootElement.setAttribute('data-backdrop', 'static');
-        this.rootElement.classList.remove('fade');
+      if (state.src) {
+        this.rootElement.setAttribute('src', state.src);
       }
-      if (state.show) {
-        this.show();
-      }
-      if (state.show === false) {
-        this.hide();
+      if (state.width) {
+        this.rootElement.setAttribute('width', state.width);
       }
       if (state.height) {
-        this.childrenTarget.setAttribute('style', 'height: ' + state.height);;
+        this.rootElement.setAttribute('height', state.height);
       }
     }
 
-    show() {
-      let el = $('#' + this.rootElement.id);
-      el.modal('show');
-    }
-
-    hide() {
-      let el = $('#' + this.rootElement.id);
-      el.modal('hide');
-    }
-
-    destroy() {
-      let el = $('#' + this.rootElement.id);
-      el.modal('dispose');
+    src(src) {
+      this.setState({src: src});
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
-      this.rootElement = this.getElementsByTagName('div')[0];
-      this.childrenTarget = this.rootElement.querySelector('.modal-content');
-      this.name = 'undefined-name-' + counter;
-      this.labelId = labelId;
+      this.rootElement = this.getElementsByTagName('iframe')[0];
+      this.childrenTarget = this.rootElement;
     }
 
     disconnectedCallback() {
-      console.log('*** modal component was removed!');
+      console.log('*** iframe component was removed!');
       if (this.onUnload) this.onUnload();
     }
-  }
 
-  customElements.define(componentName, adminui_modal_root);
+  });
+};
 
-}

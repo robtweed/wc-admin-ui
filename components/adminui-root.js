@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 25 March 2020
+ 3 April 2020
 
 */
 
@@ -149,6 +149,7 @@ export function load() {
       this.loadCSSFile(prefix + 'css/sb-admin/sb-admin-2.min.css');
       this.loadCSSFile(prefix + 'css/toastr/toastr.min.css');
       this.loadCSSFile(prefix + 'css/datatables/dataTables.bootstrap4.min.css');
+      this.loadCSSFile(prefix + 'css/datepicker/bootstrap-datepicker3.min.css');
 
       let _this = this;
 
@@ -164,6 +165,9 @@ export function load() {
           if (count === noOfFiles) _this.isReady();
         });
         _this.loadJSFile(prefix + 'js/bootstrap/bootstrap-input-spinner.js');
+        _this.loadJSFile(prefix + 'js/datepicker/bootstrap-datepicker.min.js', function() {
+          _this.loadJSFile(prefix + 'js/datepicker/bootstrap-datepicker.en-GB.min.js');
+        });
         _this.loadJSFile(prefix + 'js/jquery-easing/jquery.easing.min.js', function() {
           count++;
           if (count === noOfFiles) _this.isReady();

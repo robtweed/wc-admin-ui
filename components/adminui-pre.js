@@ -30,77 +30,44 @@
 
 export function load() {
 
-  let componentName = 'adminui-modal-root';
-  let id_prefix = componentName + '-';
-  let counter = -1;
-  let labelId;
+  let componentName = 'adminui-pre';
 
-  class adminui_modal_root extends HTMLElement {
+  customElements.define(componentName, class adminui_pre extends HTMLElement {
     constructor() {
       super();
 
-      counter++;
-      let id = id_prefix + counter;
-      labelId = id_prefix + 'Label' + counter;
-
       const html = `
-<div class="modal fade" id="${id}" tabindex="-1" role="dialog" aria-labelledby="${labelId}" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content"></div>
-  </div>
-</div>
+<pre></pre>
       `;
+
       this.html = `${html}`;
     }
 
     setState(state) {
+      if (state.text) {
+        this.rootElement.textContent = state.text;
+      }
       if (state.name) {
         this.name = state.name;
       }
-      if (state.static) {
-        this.rootElement.setAttribute('data-backdrop', 'static');
-        this.rootElement.classList.remove('fade');
+      if (state.cls) {
+        let _this = this;
+        state.cls.split(' ').forEach(function(cls) {
+          _this.rootElement.classList.add(cls);
+        });
       }
-      if (state.show) {
-        this.show();
-      }
-      if (state.show === false) {
-        this.hide();
-      }
-      if (state.height) {
-        this.childrenTarget.setAttribute('style', 'height: ' + state.height);;
-      }
-    }
-
-    show() {
-      let el = $('#' + this.rootElement.id);
-      el.modal('show');
-    }
-
-    hide() {
-      let el = $('#' + this.rootElement.id);
-      el.modal('hide');
-    }
-
-    destroy() {
-      let el = $('#' + this.rootElement.id);
-      el.modal('dispose');
     }
 
     connectedCallback() {
       this.innerHTML = this.html;
-      this.rootElement = this.getElementsByTagName('div')[0];
-      this.childrenTarget = this.rootElement.querySelector('.modal-content');
-      this.name = 'undefined-name-' + counter;
-      this.labelId = labelId;
+      this.rootElement = this.getElementsByTagName('pre')[0];
+      this.childrenTarget = this.rootElement;
     }
 
     disconnectedCallback() {
-      console.log('*** modal component was removed!');
+      console.log('*** pre component was removed!');
       if (this.onUnload) this.onUnload();
     }
-  }
 
-  customElements.define(componentName, adminui_modal_root);
-
+  });
 }
