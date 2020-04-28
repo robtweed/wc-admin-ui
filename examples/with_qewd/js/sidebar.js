@@ -195,6 +195,22 @@ export function define_sidebar() {
       }
     },
     {
+      componentName: 'adminui-sidebar-nav-item',
+      state: {
+        title: 'Map',
+        icon: 'map',
+        contentPage: 'map'
+      }
+    },
+    {
+      componentName: 'adminui-sidebar-nav-item',
+      state: {
+        title: 'Node Editor',
+        icon: 'map',
+        contentPage: 'd3'
+      }
+    },
+    {
       componentName: 'adminui-sidebar-divider',
     },
     {

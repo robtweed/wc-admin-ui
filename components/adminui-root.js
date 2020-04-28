@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 3 April 2020
+ 17 April 2020
 
 */
 
@@ -143,6 +143,11 @@ export function load() {
 
       let prefix = '';
       if (this.context.resourcePath) prefix = this.context.resourcePath;
+      if (this.context.paths && this.context.paths.adminui) {
+        prefix = this.context.paths.adminui;
+        if (prefix[0] === '.') prefix = prefix.slice(1);
+      }
+      if (prefix !== '' && prefix.slice(-1) !== '/') prefix = prefix + '/';
 
       this.loadCSSFile(prefix + 'css/fontawesome-free/all.min.css');
       this.loadCSSFile('https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i');

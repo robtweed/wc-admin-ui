@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 March 2020
+ 16 April 2020
 
 */
 
@@ -46,6 +46,15 @@ export function load() {
     setState(state) {
       if (state.text) {
         this.rootElement.textContent = state.text;
+      }
+      if (state.name) {
+        this.name = state.name;
+      }
+      if (state.cls) {
+        let _this = this;
+        state.cls.split(' ').forEach(function(cls) {
+          _this.rootElement.classList.add(cls);
+        });
       }
     }
 

@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 2 April 2020
+ 7 April 2020
 
 */
 
@@ -56,6 +56,7 @@ export function crud_assembly(QEWD, state) {
 
   let component = {
     componentName: 'adminui-content-page',
+    assemblyName: state.assemblyName,
     state: {
       name: state.name
     },
@@ -171,10 +172,10 @@ export function crud_assembly(QEWD, state) {
     ]
   };
 
-  let showUserBtn = {
+  let showRecordBtn = {
     componentName: 'adminui-button',
+    assemblyName: state.assemblyName,
     state: {
-      assemblyName: state.assemblyName,
       icon: state.summary.rowBtnIcon,
       colour: state.summary.rowBtnColour
     },
@@ -182,6 +183,7 @@ export function crud_assembly(QEWD, state) {
   };
 
   let deleteBtn = {
+    assemblyName: state.assemblyName,
     componentName: 'adminui-button',
     state: {
       icon: 'trash-alt',
@@ -192,8 +194,9 @@ export function crud_assembly(QEWD, state) {
 
   let confirmDeleteModal = {
     componentName: 'adminui-modal-root',
+    assemblyName: state.assemblyName,
     state: {
-      name: 'confirm-delete'
+      name: 'confirm-delete-' + state.name
     },
     children: [
       {
@@ -223,8 +226,8 @@ export function crud_assembly(QEWD, state) {
           {
             componentName: 'adminui-button',
             state: {
-              name: 'deleteRecord',
-              text: 'Yes',
+              name: 'deleteRecord-' + state.name,
+              text: state.name + ' Yes',
               colour: 'danger',
               cls: 'btn-block'
             },
@@ -242,7 +245,7 @@ export function crud_assembly(QEWD, state) {
     'adminui-content-page': {
 
       loadModal: function() {
-        let modal = this.getComponentByName('adminui-modal-root', 'confirm-delete');
+        let modal = this.getComponentByName('adminui-modal-root', 'confirm-delete-' + state.name);
         if (!modal) {
           // add modal for confirming record deletions
           this.loadGroup(confirmDeleteModal, document.getElementsByTagName('body')[0], this.context);
@@ -412,11 +415,11 @@ export function crud_assembly(QEWD, state) {
               let td = row.find('td').eq(noOfCols - 1)[0];
               let id = td.textContent;
               table.row = table.data[id];
-              td.id = 'record-' + id;
+              td.id = state.name + '-record-' + id;
               td.textContent = '';
               if (state.summary.enableDelete) {
                 td = row.find('td').eq(noOfCols)[0];
-                td.id = 'delete-' + id;
+                td.id = state.name + '-delete-' + id;
                 let confirmTextFn = state.summary.deleteConfirmText;
                 let confirmText;
                 if (typeof confirmTextFn === 'function') {
@@ -433,7 +436,7 @@ export function crud_assembly(QEWD, state) {
             table.datatable.rows({page: 'current'}).every(function(index, element) {
               let row = $(this.node());
               let td = row.find('td').eq(noOfCols - 1)[0];
-              table.loadGroup(showUserBtn, td, table.context);
+              table.loadGroup(showRecordBtn, td, table.context);
               if (state.summary.enableDelete) {
                 td = row.find('td').eq(noOfCols)[0];
                 table.loadGroup(deleteBtn, td, table.context);
@@ -448,7 +451,7 @@ export function crud_assembly(QEWD, state) {
                 if (btn) {
                   td.removeChild(btn);
                 }
-                table.loadGroup(showUserBtn, td, table.context);
+                table.loadGroup(showRecordBtn, td, table.context);
                 if (state.summary.enableDelete) {
                   td = row.find('td').eq(3)[0];
                   btn = td.querySelector('adminui-button');
@@ -469,20 +472,20 @@ export function crud_assembly(QEWD, state) {
       confirmDelete: function() {
         let _this = this;
         this.rootElement.setAttribute('data-toggle', 'modal');
-        let modalRoot = this.getComponentByName('adminui-modal-root', 'confirm-delete'); 
+        let modalRoot = this.getComponentByName('adminui-modal-root', 'confirm-delete-' + state.name); 
         if (modalRoot) {
           this.rootElement.setAttribute('data-target', '#' + modalRoot.rootElement.id);
         }
-        let card = this.getComponentByName('adminui-content-card', state.name + '-details-card');
         let fn = function() {
+          let card = _this.getComponentByName('adminui-content-card', state.name + '-details-card');
           card.hide();
           let id = _this.parentNode.id.split('delete-')[1];
           let display = _this.parentNode.getAttribute('data-confirm');
           let header = modalRoot.querySelector('adminui-modal-header');
           header.setState({
-            title: 'Deleting ' + display
+            title: state.assemblyName + ': Deleting ' + display
           });
-          let button = _this.getComponentByName('adminui-button', 'deleteRecord');
+          let button = _this.getComponentByName('adminui-button', 'deleteRecord-' + state.name);
           button.recordId = id;
         }
         this.addHandler(fn);
@@ -506,7 +509,7 @@ export function crud_assembly(QEWD, state) {
               id: _this.recordId
             }
            });
-            let modalRoot = _this.getComponentByName('adminui-modal-root', 'confirm-delete');
+            let modalRoot = _this.getParentComponent('adminui-modal-root');
             modalRoot.hide();
             if (responseObj.message.error) {
               toastr.error(responseObj.message.error);
@@ -519,6 +522,7 @@ export function crud_assembly(QEWD, state) {
               table.remove();
               let assembly = {
                 componentName: 'adminui-datatables',
+                assemblyName: state.assemblyName,
                 state: {
                   name: state.name
                 },
@@ -570,10 +574,13 @@ export function crud_assembly(QEWD, state) {
               toastr.info('Record updated successfully');
                 let table = _this.getComponentByName('adminui-datatables', state.name);
                 let target = table.getParentComponent('adminui-content-card-body');
-                table.datatable.destroy();
-                table.remove();
+                if (table) {
+                  table.datatable.destroy();
+                  table.remove();
+                }
                 let assembly = {
                   componentName: 'adminui-datatables',
+                  assemblyName: state.assemblyName,
                   state: {
                     name: state.name
                   },
