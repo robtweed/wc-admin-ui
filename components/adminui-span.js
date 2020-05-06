@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 16 April 2020
+ 6 May 2020
 
 */
 
@@ -55,6 +55,9 @@ export function load() {
         state.cls.split(' ').forEach(function(cls) {
           _this.rootElement.classList.add(cls);
         });
+      }
+      if (state.markup) {
+        this.rootElement.innerHTML = state.markup;
       }
     }
 

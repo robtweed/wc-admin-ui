@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 3 April 2020
+ 1 May 2020
 
 */
 
@@ -43,6 +43,9 @@ export function load() {
     }
 
     setState(state) {
+      if (state.name) {
+        this.name = state.name;
+      }
       if (state.text) {
         this.rootElement.textContent = state.text;
       }

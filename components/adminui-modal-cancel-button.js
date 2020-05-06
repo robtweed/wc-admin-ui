@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 March 2020
+ 1 May 2020
 
 */
 
@@ -43,6 +43,9 @@ export function load() {
     }
 
     setState(state) {
+      if (state.name) {
+        this.name = state.name
+      }
       if (state.text) {
         this.rootElement.textContent = state.text;
       }
@@ -50,6 +53,21 @@ export function load() {
         let oldColour = this.rootElement.classList.item(1);
         this.rootElement.classList.remove(oldColour);
         this.rootElement.classList.add('btn-' + state.colour);
+      }
+    }
+
+    onLoaded() {
+      let cancelledEvent = new Event('modalCancelled');
+      let fn = function() {
+        document.dispatchEvent(cancelledEvent);
+      };
+      this.addHandler(fn);
+    }
+
+    onCancelled(fn) {
+      document.addEventListener('modalCancelled', fn);
+      this.removeOnCancelled = function() {
+        document.removeEventListener('modalCancelled', fn);
       }
     }
 
@@ -61,6 +79,7 @@ export function load() {
     disconnectedCallback() {
       console.log('*** modal cancel button component was removed!');
       if (this.onUnload) this.onUnload();
+      this.removeOnCancelled();
     }
   }
 
