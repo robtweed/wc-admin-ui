@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 3 April 2020
+ 20 May 2020
 
 */
 
@@ -96,7 +96,7 @@ export function load() {
     }
 
     disconnectedCallback() {
-      console.log('*** modal component was removed!');
+      console.log('*** modal root component was removed!');
       if (this.onUnload) this.onUnload();
     }
   }

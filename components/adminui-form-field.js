@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 23 March 2020
+ 20 May 2020
 
 */
 
@@ -133,7 +133,7 @@ export function load() {
     }
 
     disconnectedCallback() {
-      console.log('*** form component was removed!');
+      console.log('*** form field component was removed!');
       if (this.onUnload) this.onUnload();
       this.inputTag.removeEventListener('change', this.fn);
     }
