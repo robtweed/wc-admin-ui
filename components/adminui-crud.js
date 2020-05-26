@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 7 April 2020
+ 26 May 2020
 
 */
 
@@ -32,7 +32,7 @@ export function crud_assembly(QEWD, state) {
 
   state = state || {};
   state.name = state.name || 'crud-' + Date.now();
-  state.title = state.title || 'CRUD Page';
+  state.title = state.title || 'Record Maintenance Page';
   state.summary = state.summary || {};
   state.detail = state.detail || {};
   state.update = state.update || {};
@@ -42,6 +42,7 @@ export function crud_assembly(QEWD, state) {
   if (state.summary.headers.length === state.summary.data_properties.length) {
     state.summary.headers.push('Select');
   };
+  state.summary.qewd = state.summary.qewd || {};
 
   let formFields = {};
   let formFieldPropertyNames = {};
@@ -83,11 +84,11 @@ export function crud_assembly(QEWD, state) {
                   {
                     componentName: 'adminui-content-card-button-title',
                     state: {
-                      title: state.summary.title,
-                      title_colour: state.summary.titleColour,
-                      icon: state.summary.btnIcon,
-                      buttonColour: state.summary.btnColour,
-                      tooltip: state.summary.btnTooltip,
+                      title: state.summary.title || 'Summary of Records',
+                      title_colour: state.summary.titleColour || 'info',
+                      icon: state.summary.btnIcon || 'plus',
+                      buttonColour: state.summary.btnColour || 'success',
+                      tooltip: state.summary.btnTooltip || 'Add a new Record',
                       hideButton: state.summary.disableAdd
                     },
                     hooks: ['createNewRecord']
@@ -176,8 +177,8 @@ export function crud_assembly(QEWD, state) {
     componentName: 'adminui-button',
     assemblyName: state.assemblyName,
     state: {
-      icon: state.summary.rowBtnIcon,
-      colour: state.summary.rowBtnColour
+      icon: state.summary.rowBtnIcon || 'edit',
+      colour: state.summary.rowBtnColour || 'info'
     },
     hooks: ['getDetail']
   };
@@ -365,18 +366,10 @@ export function crud_assembly(QEWD, state) {
 
       retrieveRecordSummary: async function() {
         let table = this;
-        /*
-        QEWD.send({
-          type: state.summary.qewd.getSummary,
-          params: {
-            properties: state.summary.data_properties
-          }
-        }, function(responseObj) {
-        */
         let responseObj = await QEWD.reply({
-          type: state.summary.qewd.getSummary,
+          type: state.summary.qewd.getSummary || 'getSummary',
           params: {
-            properties: state.summary.data_properties
+            properties: state.summary.data_properties || ['name']
           }
         });
           if (!responseObj.message.error) {
@@ -395,6 +388,9 @@ export function crud_assembly(QEWD, state) {
               data.push(row);
             });
             let columns = [];
+            if (!state.summary.headers) {
+              state.summary.headers = ['Name'];
+            }
             let noOfCols = state.summary.headers.length;
             
             state.summary.headers.forEach(function(header) {
@@ -495,16 +491,8 @@ export function crud_assembly(QEWD, state) {
         let _this = this;
         let fn = async function() {
           let id = _this.parentNode.id.split('delete-')[1];
-          /*
-          QEWD.send({
-            type: state.summary.qewd.delete,
-            params: {
-              id: _this.recordId
-            }
-          }, function(responseObj) {
-          */
           let responseObj = await QEWD.reply({
-            type: state.summary.qewd.delete,
+            type: state.summary.qewd.delete || 'deleteRecord',
             params: {
               id: _this.recordId
             }
@@ -602,16 +590,8 @@ export function crud_assembly(QEWD, state) {
         let form = this.getComponentByName('adminui-form', state.name);
         let fn = async function() {
           form.recordId = id;
-          /*
-          QEWD.send({
-            type: state.summary.qewd.getDetail,
-            params: {
-              id: id
-            }
-          }, function(responseObj) {
-          */
           let responseObj = await QEWD.reply({
-            type: state.summary.qewd.getDetail,
+            type: state.summary.qewd.getDetail || 'getRecordDetail',
             params: {
               id: id
             }
