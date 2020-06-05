@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 26 May 2020
+ 29 May 2020
 
 */
 
@@ -32,18 +32,20 @@ export function crud_assembly(QEWD, state) {
 
   state = state || {};
   state.name = state.name || 'crud-' + Date.now();
+  //state.assemblyName = state.assemblyName || state.name;
   state.title = state.title || 'Record Maintenance Page';
   state.summary = state.summary || {};
   state.detail = state.detail || {};
   state.update = state.update || {};
 
-  state.summary.headers = state.summary.headers || [];
-  state.summary.data_properties = state.summary.data_properties || [];
+  state.summary.headers = state.summary.headers || ['Name'];
+  state.summary.data_properties = state.summary.data_properties || ['name'];
   if (state.summary.headers.length === state.summary.data_properties.length) {
     state.summary.headers.push('Select');
   };
   state.summary.qewd = state.summary.qewd || {};
-
+  state.update.qewd = state.update.qewd || {};
+  
   let formFields = {};
   let formFieldPropertyNames = {};
   if (state.detail.fields) {
@@ -369,97 +371,92 @@ export function crud_assembly(QEWD, state) {
         let responseObj = await QEWD.reply({
           type: state.summary.qewd.getSummary || 'getSummary',
           params: {
-            properties: state.summary.data_properties || ['name']
+            properties: state.summary.data_properties
           }
         });
-          if (!responseObj.message.error) {
-            table.data = {};
-            let data = [];
-            responseObj.message.summary.forEach(function(record) {
-              table.data[record.id] = record;
-              let row = [];
-              state.summary.data_properties.forEach(function(property) {
-                row.push(record[property]);
-              });
-              row.push(record.id);
-              if (state.summary.enableDelete) {
-                row.push('');
-              }
-              data.push(row);
+        if (!responseObj.message.error) {
+          table.data = {};
+          let data = [];
+          responseObj.message.summary.forEach(function(record) {
+            table.data[record.id] = record;
+            let row = [];
+            state.summary.data_properties.forEach(function(property) {
+              row.push(record[property]);
             });
-            let columns = [];
-            if (!state.summary.headers) {
-              state.summary.headers = ['Name'];
-            }
-            let noOfCols = state.summary.headers.length;
-            
-            state.summary.headers.forEach(function(header) {
-              columns.push({title: header});
-            });
+            row.push(record.id);
             if (state.summary.enableDelete) {
-              columns.push({title: 'Delete'});
+              row.push('');
             }
-            let obj = {
-              data: data,
-              columns: columns
-            };
+            data.push(row);
+          });
+          let columns = [];
+          let noOfCols = state.summary.headers.length;
+          
+          state.summary.headers.forEach(function(header) {
+            columns.push({title: header});
+          });
+          if (state.summary.enableDelete) {
+            columns.push({title: 'Delete'});
+          }
+          let obj = {
+            data: data,
+            columns: columns
+          };
+          table.render(obj);
 
-            table.render(obj);
-
-            table.datatable.rows().every(function(index, element) {
-              let row = $(this.node());
-              let td = row.find('td').eq(noOfCols - 1)[0];
-              let id = td.textContent;
-              table.row = table.data[id];
-              td.id = state.name + '-record-' + id;
-              td.textContent = '';
-              if (state.summary.enableDelete) {
-                td = row.find('td').eq(noOfCols)[0];
-                td.id = state.name + '-delete-' + id;
-                let confirmTextFn = state.summary.deleteConfirmText;
-                let confirmText;
-                if (typeof confirmTextFn === 'function') {
-                  confirmText = confirmTextFn.call(table);
-                }
-                else {
-                  let name_td = row.find('td').eq(0)[0];
-                  confirmText = name_td.textContent;
-                }
-                td.setAttribute('data-confirm', confirmText);
+          table.datatable.rows().every(function(index, element) {
+            let row = $(this.node());
+            let td = row.find('td').eq(noOfCols - 1)[0];
+            let id = td.textContent;
+            table.row = table.data[id];
+            td.id = state.name + '-record-' + id;
+            td.textContent = '';
+            if (state.summary.enableDelete) {
+              td = row.find('td').eq(noOfCols)[0];
+              td.id = state.name + '-delete-' + id;
+              let confirmTextFn = state.summary.deleteConfirmText;
+              let confirmText;
+              if (typeof confirmTextFn === 'function') {
+                confirmText = confirmTextFn.call(table);
               }
-            });
+              else {
+                let name_td = row.find('td').eq(0)[0];
+                confirmText = name_td.textContent;
+              }
+              td.setAttribute('data-confirm', confirmText);
+            }
+          });
 
+          table.datatable.rows({page: 'current'}).every(function(index, element) {
+            let row = $(this.node());
+            let td = row.find('td').eq(noOfCols - 1)[0];
+            table.loadGroup(showRecordBtn, td, table.context);
+            if (state.summary.enableDelete) {
+              td = row.find('td').eq(noOfCols)[0];
+              table.loadGroup(deleteBtn, td, table.context);
+            }
+          });
+
+          table.datatable.on('draw', function() {
             table.datatable.rows({page: 'current'}).every(function(index, element) {
               let row = $(this.node());
-              let td = row.find('td').eq(noOfCols - 1)[0];
+              let td = row.find('td').eq(2)[0];
+              let btn = td.querySelector('adminui-button');
+              if (btn) {
+                td.removeChild(btn);
+              }
               table.loadGroup(showRecordBtn, td, table.context);
               if (state.summary.enableDelete) {
-                td = row.find('td').eq(noOfCols)[0];
-                table.loadGroup(deleteBtn, td, table.context);
-              }
-            });
-
-            table.datatable.on('draw', function() {
-              table.datatable.rows({page: 'current'}).every(function(index, element) {
-                let row = $(this.node());
-                let td = row.find('td').eq(2)[0];
-                let btn = td.querySelector('adminui-button');
+                td = row.find('td').eq(3)[0];
+                btn = td.querySelector('adminui-button');
                 if (btn) {
                   td.removeChild(btn);
                 }
-                table.loadGroup(showRecordBtn, td, table.context);
-                if (state.summary.enableDelete) {
-                  td = row.find('td').eq(3)[0];
-                  btn = td.querySelector('adminui-button');
-                  if (btn) {
-                    td.removeChild(btn);
-                  }
-                  table.loadGroup(deleteBtn, td, table.context);
-                }
-              });
+                table.loadGroup(deleteBtn, td, table.context);
+              }
             });
-          }
-        //});
+          });
+        }
       }
     },
 
@@ -499,10 +496,7 @@ export function crud_assembly(QEWD, state) {
            });
             let modalRoot = _this.getParentComponent('adminui-modal-root');
             modalRoot.hide();
-            if (responseObj.message.error) {
-              toastr.error(responseObj.message.error);
-            }
-            else {
+            if (!responseObj.message.error) {
               toastr.info('Record deleted');
               let table = _this.getComponentByName('adminui-datatables', state.name);
               let target = table.getParentComponent('adminui-content-card-body');
@@ -545,40 +539,32 @@ export function crud_assembly(QEWD, state) {
               params[formFieldPropertyNames[name]] = value;
             }
           }
-          /*
-          QEWD.send({
-            type: state.update.qewd.save,
-            params: params
-          }, function(responseObj) {
-          */
           let responseObj = await QEWD.reply({
-            type: state.update.qewd.save,
+            type: state.update.qewd.save || 'saveRecord',
             params: params
           });
-            if (responseObj.message.error) {
-              toastr.error(responseObj.message.error);
+          if (!responseObj.message.error) {
+            toastr.info('Record updated successfully');
+            let table = _this.getComponentByName('adminui-datatables', state.name);
+            let target = table.getParentComponent('adminui-content-card-body');
+            if (table) {
+              table.datatable.destroy();
+              table.remove();
             }
-            else {
-              toastr.info('Record updated successfully');
-                let table = _this.getComponentByName('adminui-datatables', state.name);
-                let target = table.getParentComponent('adminui-content-card-body');
-                if (table) {
-                  table.datatable.destroy();
-                  table.remove();
-                }
-                let assembly = {
-                  componentName: 'adminui-datatables',
-                  assemblyName: state.assemblyName,
-                  state: {
-                    name: state.name
-                  },
-                  hooks: ['retrieveRecordSummary']
-                };
-                _this.loadGroup(assembly, target, _this.context);
-              let card = _this.getComponentByName('adminui-content-card', state.name + '-details-card');
-              card.hide();
-            }
-          //});
+            let assembly = {
+              componentName: 'adminui-datatables',
+              assemblyName: state.assemblyName,
+              state: {
+                name: state.name
+              },
+              hooks: ['retrieveRecordSummary']
+            };
+            //console.log(target);
+            //console.log(assembly);
+            _this.loadGroup(assembly, target, _this.context);
+            let card = _this.getComponentByName('adminui-content-card', state.name + '-details-card');
+            card.hide();
+          }
         };
         this.addHandler(fn);
       },
