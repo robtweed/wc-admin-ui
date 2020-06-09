@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 29 May 2020
+ 9 June 2020
 
 */
 
@@ -126,9 +126,9 @@ export function crud_assembly(QEWD, state) {
                     componentName: 'adminui-content-card-button-title',
                     state: {
                       title: state.detail.title,
-                      title_colour: state.detail.titleColour,
-                      icon: state.detail.btnIcon,
-                      buttonColour: state.detail.btnColour,
+                      title_colour: state.detail.titleColour || 'info',
+                      icon: state.detail.btnIcon || 'cog',
+                      buttonColour: state.detail.btnColour || 'info',
                       tooltip: state.detail.btnTooltip || 'Edit record',
                       disableButton: state.detail.disableEdit
                     },
@@ -589,6 +589,9 @@ export function crud_assembly(QEWD, state) {
               let title_value;
               if (typeof state.detail.title_data_property === 'function') {
                 title_value = state.detail.title_data_property.call(_this);
+              }
+              else if (!state.detail.title_data_property) {
+                title_value = 'Edit Record';
               }
               else {
                 title_value = _this.record[state.detail.title_data_property];
