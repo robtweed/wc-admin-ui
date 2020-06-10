@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 9 June 2020
+ 10 June 2020
 
 */
 
@@ -230,7 +230,7 @@ export function crud_assembly(QEWD, state) {
             componentName: 'adminui-button',
             state: {
               name: 'deleteRecord-' + state.name,
-              text: state.name + ' Yes',
+              text: 'Yes',
               colour: 'danger',
               cls: 'btn-block'
             },
@@ -417,7 +417,11 @@ export function crud_assembly(QEWD, state) {
               let confirmTextFn = state.summary.deleteConfirmText;
               let confirmText;
               if (typeof confirmTextFn === 'function') {
-                confirmText = confirmTextFn.call(table);
+                let fields = [];
+                for (let i = 0; i < (noOfCols - 1); i++) {
+                  fields.push(row.find('td').eq(i)[0].textContent);
+                }
+                confirmText = confirmTextFn(fields);
               }
               else {
                 let name_td = row.find('td').eq(0)[0];
@@ -476,7 +480,7 @@ export function crud_assembly(QEWD, state) {
           let display = _this.parentNode.getAttribute('data-confirm');
           let header = modalRoot.querySelector('adminui-modal-header');
           header.setState({
-            title: state.assemblyName + ': Deleting ' + display
+            title: 'Deleting ' + display
           });
           let button = _this.getComponentByName('adminui-button', 'deleteRecord-' + state.name);
           button.recordId = id;
