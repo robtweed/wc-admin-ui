@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 17 April 2020
+ 30 June 2020
 
 */
 
@@ -90,6 +90,7 @@ export function load() {
       // set selected page to active
       let page = this.getContentPage(pageName);
       page.setState({show: true});
+      if (page.onSelected) page.onSelected();
     }
 
     switchToPage(pageName) {

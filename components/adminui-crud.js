@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 10 June 2020
+ 30 June 2020
 
 */
 
@@ -41,7 +41,7 @@ export function crud_assembly(QEWD, state) {
   state.summary.headers = state.summary.headers || ['Name'];
   state.summary.data_properties = state.summary.data_properties || ['name'];
   if (state.summary.headers.length === state.summary.data_properties.length) {
-    state.summary.headers.push('Select');
+      state.summary.headers.push('Select');
   };
   state.summary.qewd = state.summary.qewd || {};
   state.update.qewd = state.update.qewd || {};
@@ -193,6 +193,17 @@ export function crud_assembly(QEWD, state) {
       colour: 'danger'
     },
     hooks: ['confirmDelete']
+  };
+  
+  let selectBtn = {
+    assemblyName: state.assemblyName,
+    componentName: 'adminui-button',
+    state: {
+      icon: 'check-square',
+      colour: 'info',
+      tooltip: 'Select Record'
+    },
+    hooks: ['selectRecord']
   };
 
   let confirmDeleteModal = {
@@ -368,10 +379,13 @@ export function crud_assembly(QEWD, state) {
 
       retrieveRecordSummary: async function() {
         let table = this;
+        let contentPage = this.getParentComponent('adminui-content-page');
+        
         let responseObj = await QEWD.reply({
           type: state.summary.qewd.getSummary || 'getSummary',
           params: {
-            properties: state.summary.data_properties
+            properties: state.summary.data_properties,
+            selectedRecordId: table.context.selectedRecordId
           }
         });
         if (!responseObj.message.error) {
@@ -460,7 +474,25 @@ export function crud_assembly(QEWD, state) {
               }
             });
           });
+          contentPage.rendered = true;
         }
+        
+        contentPage.onSelected = function() {
+          if (contentPage.rendered && state.summary.refetchSummaryOnSelected) {
+            let target = table.getParentComponent('adminui-content-card-body');
+            table.datatable.destroy();
+            table.remove();
+            let assembly = {
+              componentName: 'adminui-datatables',
+              assemblyName: state.assemblyName,
+              state: {
+                name: state.name
+              },
+              hooks: ['retrieveRecordSummary']
+            };
+            table.loadGroup(assembly, target, table.context);
+          }
+        };
       }
     },
 
@@ -577,6 +609,8 @@ export function crud_assembly(QEWD, state) {
         let _this = this;
         let id = this.parentNode.id.split('record-')[1];
         let card = this.getComponentByName('adminui-content-card', state.name + '-details-card');
+        let title = card.querySelector('adminui-content-card-button-title');
+        title.selectedRecordId = id;
         let form = this.getComponentByName('adminui-form', state.name);
         let fn = async function() {
           form.recordId = id;
@@ -586,59 +620,65 @@ export function crud_assembly(QEWD, state) {
               id: id
             }
           });
-            if (!responseObj.message.error) {
-              card.show();
-              card.footer.hide();
-              _this.record = responseObj.message.record;
-              let title_value;
-              if (typeof state.detail.title_data_property === 'function') {
-                title_value = state.detail.title_data_property.call(_this);
-              }
-              else if (!state.detail.title_data_property) {
-                title_value = 'Edit Record';
-              }
-              else {
-                title_value = _this.record[state.detail.title_data_property];
-              }
-
-              let title = card.querySelector('adminui-content-card-button-title');
-              title.setState({title: title_value});
-              title.showButton();
-
-              for (let fname in formFields) {
-                  let name = formFields[fname].name;
-                  let field = form.field[name];
-
-                  if (field.type === 'radio-group') {
-                    field.setState({
-                      selectedValue: _this.record[name],
-                      readonly: true
-                    });
-                  }
-                  else if (field.type === 'checkbox-group') {
-                    field.setState({
-                      selectedValues: _this.record[name],
-                      readonly: true
-                    });
-                  }
-                  else if (field.type === 'select-multiple') {
-                    field.setState({
-                      selectedValues: _this.record[name],
-                      readonly: true
-                    });
-                  }
-                  else {
-                    if (field.type === 'range' && !_this.record[name]) {
-                      _this.record[name] = field.min;
-                    }
-                    field.setState({
-                      value: _this.record[name],
-                      readonly: true
-                    });
-                  }
-              }
+          if (!responseObj.message.error) {
+            card.show();
+            card.footer.hide();
+            _this.record = responseObj.message.record;
+            let title_value;
+            if (typeof state.detail.title_data_property === 'function') {
+              title_value = state.detail.title_data_property.call(_this);
             }
-          //});
+            else if (!state.detail.title_data_property) {
+              title_value = 'Edit Record';
+            }
+            else {
+              title_value = _this.record[state.detail.title_data_property];
+            }
+            title.setState({title: title_value});
+            title.showButton();
+
+            for (let fname in formFields) {
+                let name = formFields[fname].name;
+                let field = form.field[name];
+
+                if (field.type === 'radio-group') {
+                  field.setState({
+                    selectedValue: _this.record[name],
+                    readonly: true
+                  });
+                }
+                else if (field.type === 'checkbox-group') {
+                  field.setState({
+                    selectedValues: _this.record[name],
+                    readonly: true
+                  });
+                }
+                else if (field.type === 'select-multiple') {
+                  field.setState({
+                    selectedValues: _this.record[name],
+                    readonly: true
+                  });
+                }
+                else {
+                  if (field.type === 'range' && !_this.record[name]) {
+                    _this.record[name] = field.min;
+                  }
+                  field.setState({
+                    value: _this.record[name],
+                    readonly: true
+                  });
+                }
+            }
+          }
+        };
+        this.addHandler(fn, this.rootElement);
+      },
+      
+      selectRecord() {
+        let _this = this;
+        let title = this.getParentComponent('adminui-content-card-button-title');
+        let fn = function() {
+          _this.context.selectedRecordId = title.selectedRecordId;
         };
         this.addHandler(fn, this.rootElement);
       }
@@ -647,12 +687,10 @@ export function crud_assembly(QEWD, state) {
     'adminui-content-card-button-title': {
 
       updateRecord: function() {
-        let _this = this;
+        let title = this;
         let fn = function() {
-          let card = _this.getParentComponent('adminui-content-card');
-          let title = card.querySelector('adminui-content-card-button-title');
           title.hideButton();
-          let form = _this.getComponentByName('adminui-form', state.name);
+          let form = title.getComponentByName('adminui-form', state.name);
           card.footer.show();
           let field;
           for (let name in form.field) {
@@ -661,6 +699,13 @@ export function crud_assembly(QEWD, state) {
           }
         };
         this.addHandler(fn, this.button);
+        
+        if (state.detail.enableSelect) {
+          let div = document.createElement('div');
+          div.classList.add('col');
+          title.rootElement.appendChild(div);
+          title.loadGroup(selectBtn, div, title.context);
+        } 
       },
 
       createNewRecord: function() {
@@ -706,4 +751,3 @@ export function crud_assembly(QEWD, state) {
   return {component, hooks};
 
 };
-

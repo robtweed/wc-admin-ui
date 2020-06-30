@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 8 March 2020
+ 30 June 2020
 
 */
 
@@ -32,13 +32,18 @@ export function load() {
 
   let componentName = 'adminui-button';
   let colour = 'btn-primary';
+  let counter = -1;
+  let id_prefix = componentName + '-';
 
   class adminui_button extends HTMLElement {
     constructor() {
       super();
 
+      counter++;
+      let id = id_prefix + 'btn-' + counter;
+      
       const html = `
-<button class="btn btn-primary" href="#">Undefined</button>
+<button class="btn btn-primary" id="${id}" href="#">Undefined</button>
       `;
       this.html = `${html}`;
     }
@@ -78,6 +83,25 @@ export function load() {
         }
         this.i.className = 'fas fa-' + state.icon;
       }
+      if (state.tooltip) {
+        let position = 'top'
+        let text = state.tooltip;
+        if (typeof state.tooltip === 'object') {
+          text = state.tooltip.text;
+          if (state.tooltip.position) position = state.tooltip.position;
+        }
+        this.rootElement.setAttribute('data-toggle', 'tooltip');
+        this.rootElement.setAttribute('data-placement', position);
+        this.rootElement.setAttribute('title', text);
+        $('#' + this.rootElement.id).tooltip();
+        let _this = this;
+        let removeTooltip = function() {
+          $('#' + _this.rootElement.id).tooltip('dispose');
+        };
+        // make sure the tooltip is removed if the component is unloaded
+        this.registerUnloadMethod(removeTooltip);
+      }
+      
       if (state.use_modal) {
         this.rootElement.setAttribute('data-toggle', 'modal');
         let modalRoot = this.getComponentByName('adminui-modal-root', state.use_modal); 
