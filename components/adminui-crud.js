@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 30 June 2020
+ 1 July 2020
 
 */
 
@@ -623,16 +623,16 @@ export function crud_assembly(QEWD, state) {
           if (!responseObj.message.error) {
             card.show();
             card.footer.hide();
-            _this.record = responseObj.message.record;
+            title.record = responseObj.message.record;
             let title_value;
             if (typeof state.detail.title_data_property === 'function') {
-              title_value = state.detail.title_data_property.call(_this);
+              title_value = state.detail.title_data_property.call(title);
             }
             else if (!state.detail.title_data_property) {
               title_value = 'Edit Record';
             }
             else {
-              title_value = _this.record[state.detail.title_data_property];
+              title_value = title.record[state.detail.title_data_property];
             }
             title.setState({title: title_value});
             title.showButton();
@@ -643,28 +643,28 @@ export function crud_assembly(QEWD, state) {
 
                 if (field.type === 'radio-group') {
                   field.setState({
-                    selectedValue: _this.record[name],
+                    selectedValue: title.record[name],
                     readonly: true
                   });
                 }
                 else if (field.type === 'checkbox-group') {
                   field.setState({
-                    selectedValues: _this.record[name],
+                    selectedValues: title.record[name],
                     readonly: true
                   });
                 }
                 else if (field.type === 'select-multiple') {
                   field.setState({
-                    selectedValues: _this.record[name],
+                    selectedValues: title.record[name],
                     readonly: true
                   });
                 }
                 else {
-                  if (field.type === 'range' && !_this.record[name]) {
-                    _this.record[name] = field.min;
+                  if (field.type === 'range' && !title.record[name]) {
+                    title.record[name] = field.min;
                   }
                   field.setState({
-                    value: _this.record[name],
+                    value: title.record[name],
                     readonly: true
                   });
                 }
@@ -679,6 +679,7 @@ export function crud_assembly(QEWD, state) {
         let title = this.getParentComponent('adminui-content-card-button-title');
         let fn = function() {
           _this.context.selectedRecordId = title.selectedRecordId;
+          _this.context.selectedRecord = title.record;
         };
         this.addHandler(fn, this.rootElement);
       }
