@@ -24,7 +24,7 @@
  |  limitations under the License.                                           |
  ----------------------------------------------------------------------------
 
- 1 July 2020
+ 14 August 2020
 
 */
 
@@ -692,6 +692,7 @@ export function crud_assembly(QEWD, state) {
         let fn = function() {
           title.hideButton();
           let form = title.getComponentByName('adminui-form', state.name);
+          let card = title.getComponentByName('adminui-content-card', state.name + '-details-card');
           card.footer.show();
           let field;
           for (let name in form.field) {
